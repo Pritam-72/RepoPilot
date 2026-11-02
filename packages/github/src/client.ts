@@ -14,3 +14,4 @@ export async function createInstallationOctokit(
   // Cast: @octokit/app returns OctokitType which is compatible with Octokit
   return octokit as unknown as Octokit;
 }
+

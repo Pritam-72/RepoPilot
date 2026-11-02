@@ -52,3 +52,4 @@ describe("getChangedFiles", () => {
     expect(files).toEqual([]);
   });
 });
+

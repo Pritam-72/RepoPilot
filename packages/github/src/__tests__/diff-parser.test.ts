@@ -65,3 +65,4 @@ describe("getChangedLineNumbers", () => {
     expect(getChangedLineNumbers("").size).toBe(0);
   });
 });
+

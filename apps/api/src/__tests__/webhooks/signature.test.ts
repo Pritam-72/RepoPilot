@@ -33,3 +33,4 @@ describe("verifyWebhookSignature", () => {
     expect(verifyWebhookSignature(body, "", SECRET)).toBe(false);
   });
 });
+

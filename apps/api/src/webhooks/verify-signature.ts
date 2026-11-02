@@ -23,3 +23,4 @@ export function verifyWebhookSignature(
   if (expected.length !== received.length) return false;
   return timingSafeEqual(expected, received);
 }
+

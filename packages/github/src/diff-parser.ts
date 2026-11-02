@@ -65,3 +65,4 @@ export function getChangedLineNumbers(patch: string): Set<number> {
   }
   return result;
 }
+
