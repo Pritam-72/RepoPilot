@@ -403,12 +403,12 @@ Implement a single end-to-end review slice: worker receives job, fetches PR diff
 
 ---
 
-## Phase 4: Repository Context & Deterministic Static Analysis
+## Phase 4: Repository Context & Deterministic Static Analysis [COMPLETED]
 
 ### Goal
 Provide agents with surrounding syntactic context using Tree-sitter AST queries, lexical search, and incorporate deterministic findings from Semgrep.
 
-### Task 4.1: Tree-sitter Code Parser & Language Detector
+### Task 4.1: Tree-sitter Code Parser & Language Detector [DONE]
 - **Files:**
   - Create: `packages/repository-context/package.json`
   - Create: `packages/repository-context/src/language-detector.ts`
@@ -421,7 +421,7 @@ Provide agents with surrounding syntactic context using Tree-sitter AST queries,
   4. *Step 4: Run test to verify it passes*.
   5. *Step 5: Commit:* `feat(context): add Tree-sitter AST parsing for enclosing scopes and symbols`.
 
-### Task 4.2: Context Builder & Budget Manager
+### Task 4.2: Context Builder & Budget Manager [DONE]
 - **Files:**
   - Create: `packages/repository-context/src/context-builder.ts`
   - Create: `packages/repository-context/src/search.ts`
