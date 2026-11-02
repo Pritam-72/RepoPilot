@@ -1,0 +1,30 @@
+[
+  {
+    "fixture": "bug-prs/off-by-one.patch",
+    "expectedFindings": [
+      { "file": "src/paginate.ts", "line": 4, "category": "correctness", "severity": "high", "ruleId": "off-by-one-end" }
+    ]
+  },
+  {
+    "fixture": "bug-prs/unhandled-null.patch",
+    "expectedFindings": [
+      { "file": "src/user.ts", "line": 2, "category": "correctness", "severity": "medium" }
+    ]
+  },
+  {
+    "fixture": "security-prs/sql-injection.patch",
+    "expectedFindings": [
+      { "file": "src/db.ts", "line": 2, "category": "security", "severity": "critical", "ruleId": "sql-injection" }
+    ]
+  },
+  {
+    "fixture": "security-prs/path-traversal.patch",
+    "expectedFindings": [
+      { "file": "src/files.ts", "line": 3, "category": "security", "severity": "high", "ruleId": "path-traversal" }
+    ]
+  },
+  {
+    "fixture": "clean-prs/refactor-clean.patch",
+    "expectedFindings": []
+  }
+]

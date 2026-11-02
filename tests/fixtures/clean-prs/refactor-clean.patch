@@ -1,0 +1,8 @@
+--- a/src/math.ts
++++ b/src/math.ts
+@@ -1,6 +1,4 @@
+-export function add(a: number, b: number): number {
+-  const result = a + b;
+-  return result;
+-}
++export const add = (a: number, b: number): number => a + b;

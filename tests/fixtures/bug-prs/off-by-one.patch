@@ -1,0 +1,10 @@
+--- a/src/paginate.ts
++++ b/src/paginate.ts
+@@ -1,8 +1,8 @@
+ export function getPage(items: string[], page: number, size: number): string[] {
+-  const start = page * size;
+-  const end = start + size;
++  const start = (page - 1) * size;
++  const end = start + size + 1;
+   return items.slice(start, end);
+ }

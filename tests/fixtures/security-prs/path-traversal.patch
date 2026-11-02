@@ -1,0 +1,10 @@
+--- a/src/files.ts
++++ b/src/files.ts
+@@ -1,6 +1,6 @@
+ import fs from 'fs';
+ export function readFile(basePath: string, filename: string): string {
+-  const safe = path.resolve(basePath, path.basename(filename));
++  const unsafe = basePath + '/' + filename;
+-  return fs.readFileSync(safe, 'utf8');
++  return fs.readFileSync(unsafe, 'utf8');
+ }

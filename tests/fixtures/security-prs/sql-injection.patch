@@ -1,0 +1,7 @@
+--- a/src/db.ts
++++ b/src/db.ts
+@@ -1,5 +1,5 @@
+ export async function findUser(db: any, username: string) {
+-  return db.query('SELECT * FROM users WHERE name = $1', [username]);
++  return db.query(`SELECT * FROM users WHERE name = '${username}'`);
+ }
