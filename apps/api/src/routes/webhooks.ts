@@ -15,9 +15,8 @@ export function createWebhookRouter(
       await prisma.webhookDelivery.create({
         data: {
           githubDeliveryId,
-          event: "pull_request",
-          status: "received",
-          rawPayload: {},
+          eventType: "pull_request",
+          processingStatus: "accepted",
         },
       });
       return { isNew: true };
