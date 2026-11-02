@@ -1,0 +1,188 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  displayName String   @map("display_name")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  feedbacks FindingFeedback[]
+
+  @@map("users")
+}
+
+model GithubInstallation {
+  id                         String   @id @default(cuid())
+  githubInstallationId       Int      @unique @map("github_installation_id")
+  accountLogin               String   @map("account_login")
+  accountType                String   @map("account_type")
+  encryptedCredentialsRef    String?  @map("encrypted_credentials_reference")
+  createdAt                  DateTime @default(now()) @map("created_at")
+
+  repositories Repository[]
+
+  @@map("github_installations")
+}
+
+model Repository {
+  id                String   @id @default(cuid())
+  githubRepositoryId Int     @unique @map("github_repository_id")
+  installationId    String   @map("installation_id")
+  owner             String
+  name              String
+  defaultBranch     String   @default("main") @map("default_branch")
+  isEnabled         Boolean  @default(true) @map("is_enabled")
+  reviewConfig      Json     @default("{}") @map("review_config")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  installation  GithubInstallation @relation(fields: [installationId], references: [id])
+  pullRequests  PullRequest[]
+  reviewJobs    ReviewJob[]
+
+  @@map("repositories")
+}
+
+model PullRequest {
+  id            String   @id @default(cuid())
+  repositoryId  String   @map("repository_id")
+  githubPrNumber Int     @map("github_pr_number")
+  title         String
+  author        String
+  baseSha       String   @map("base_sha")
+  headSha       String   @map("head_sha")
+  state         String   @default("open")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  repository Repository  @relation(fields: [repositoryId], references: [id])
+  reviewJobs ReviewJob[]
+
+  @@unique([repositoryId, githubPrNumber])
+  @@index([repositoryId, state])
+  @@map("pull_requests")
+}
+
+model WebhookDelivery {
+  id               String   @id @default(cuid())
+  githubDeliveryId String   @unique @map("github_delivery_id")
+  eventType        String   @map("event_type")
+  repositoryId     String?  @map("repository_id")
+  receivedAt       DateTime @default(now()) @map("received_at")
+  processingStatus String   @default("accepted") @map("processing_status")
+
+  @@index([githubDeliveryId])
+  @@map("webhook_deliveries")
+}
+
+model ReviewJob {
+  id             String    @id @default(cuid())
+  repositoryId   String    @map("repository_id")
+  pullRequestId  String    @map("pull_request_id")
+  headSha        String    @map("head_sha")
+  idempotencyKey String    @unique @map("idempotency_key")
+  status         String    @default("queued")
+  configVersion  Int       @default(1) @map("config_version")
+  startedAt      DateTime? @map("started_at")
+  completedAt    DateTime? @map("completed_at")
+  errorCode      String?   @map("error_code")
+  errorMessage   String?   @map("error_message")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  repository  Repository  @relation(fields: [repositoryId], references: [id])
+  pullRequest PullRequest @relation(fields: [pullRequestId], references: [id])
+  agentRuns   AgentRun[]
+  findings    Finding[]
+
+  @@index([repositoryId, status])
+  @@index([pullRequestId, headSha])
+  @@map("review_jobs")
+}
+
+model AgentRun {
+  id            String   @id @default(cuid())
+  reviewJobId   String   @map("review_job_id")
+  agentType     String   @map("agent_type")
+  status        String   @default("running")
+  modelProvider String?  @map("model_provider")
+  modelName     String?  @map("model_name")
+  inputTokens   Int?     @map("input_tokens")
+  outputTokens  Int?     @map("output_tokens")
+  durationMs    Int?     @map("duration_ms")
+  outputJson    Json?    @map("output_json")
+  errorMessage  String?  @map("error_message")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  reviewJob ReviewJob @relation(fields: [reviewJobId], references: [id])
+  findings  Finding[]
+
+  @@index([reviewJobId, agentType])
+  @@map("agent_runs")
+}
+
+model Finding {
+  id                 String    @id @default(cuid())
+  reviewJobId        String    @map("review_job_id")
+  agentRunId         String?   @map("agent_run_id")
+  fingerprint        String
+  title              String
+  category           String
+  severity           String
+  confidence         Float
+  filePath           String    @map("file_path")
+  line               Int
+  endLine            Int?      @map("end_line")
+  description        String
+  evidence           String
+  recommendation     String?
+  verificationStatus String    @default("unverified") @map("verification_status")
+  publicationStatus  String    @default("pending") @map("publication_status")
+  githubCommentId    String?   @map("github_comment_id")
+  createdAt          DateTime  @default(now()) @map("created_at")
+
+  reviewJob ReviewJob        @relation(fields: [reviewJobId], references: [id])
+  agentRun  AgentRun?        @relation(fields: [agentRunId], references: [id])
+  feedbacks FindingFeedback[]
+
+  @@index([reviewJobId, severity])
+  @@index([fingerprint])
+  @@map("findings")
+}
+
+model FindingFeedback {
+  id           String   @id @default(cuid())
+  findingId    String   @map("finding_id")
+  userId       String   @map("user_id")
+  feedbackType String   @map("feedback_type") // useful | incorrect | dismissed
+  comment      String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  finding Finding @relation(fields: [findingId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@map("finding_feedback")
+}
+
+model FixProposal {
+  id             String   @id @default(cuid())
+  findingId      String   @map("finding_id")
+  patch          String
+  sandboxStatus  String   @default("pending") @map("sandbox_status")
+  testResults    Json?    @map("test_results")
+  approvalStatus String   @default("pending") @map("approval_status")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("fix_proposals")
+}
+
