@@ -14,3 +14,4 @@ describe("Health Route", () => {
     expect(res.headers["x-correlation-id"]).toBeDefined();
   });
 });
+

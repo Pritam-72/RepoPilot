@@ -7,3 +7,4 @@ export function correlationMiddleware(req: Request, res: Response, next: NextFun
   res.setHeader("X-Correlation-ID", correlationId);
   next();
 }
+

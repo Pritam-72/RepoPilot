@@ -10,3 +10,4 @@ describe("Database package", () => {
     expect(typeof prisma.finding.create).toBe("function");
   });
 });
+

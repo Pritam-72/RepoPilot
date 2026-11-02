@@ -30,3 +30,4 @@ if (process.env["NODE_ENV"] !== "test" && process.argv[1]?.includes("worker")) {
   createReviewWorker();
   logger.info("BullMQ Review Worker process listening for jobs");
 }
+
