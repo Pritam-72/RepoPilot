@@ -12,7 +12,9 @@
     "lint": "eslint src/"
   },
   "dependencies": {
+    "@acr/agents": "workspace:*",
     "@acr/database": "workspace:*",
+    "@acr/github": "workspace:*",
     "@acr/observability": "workspace:*",
     "@acr/review-contracts": "workspace:*",
     "bullmq": "^5.0.0",
