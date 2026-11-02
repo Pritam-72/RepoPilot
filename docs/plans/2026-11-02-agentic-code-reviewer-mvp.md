@@ -315,12 +315,12 @@ Initialize the TypeScript monorepo, configure Prisma with PostgreSQL, setup Bull
 
 ---
 
-## Phase 2: GitHub App Ingestion & Webhook Pipeline
+## Phase 2: GitHub App Ingestion & Webhook Pipeline [COMPLETED]
 
 ### Goal
 Implement secure GitHub webhook intake, HMAC-SHA256 signature verification, delivery idempotency, and Octokit PR metadata/diff retrieval pinned to the head SHA.
 
-### Task 2.1: Webhook HMAC Signature Verification
+### Task 2.1: Webhook HMAC Signature Verification [DONE]
 - **Files:**
   - Create: `apps/api/src/webhooks/verify-signature.ts`
   - Modify: `apps/api/src/server.ts` (attach raw body buffer)
@@ -332,7 +332,7 @@ Implement secure GitHub webhook intake, HMAC-SHA256 signature verification, deli
   4. *Step 4: Run test to verify it passes*.
   5. *Step 5: Commit:* `feat(api): implement raw-body GitHub webhook HMAC signature verification`.
 
-### Task 2.2: Idempotent Webhook Intake Handler
+### Task 2.2: Idempotent Webhook Intake Handler [DONE]
 - **Files:**
   - Create: `apps/api/src/webhooks/handler.ts`
   - Create: `apps/api/src/routes/webhooks.ts`
