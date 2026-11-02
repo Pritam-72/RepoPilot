@@ -194,12 +194,12 @@ flowchart LR
 
 ---
 
-## Phase 0: Environment Configuration, Benchmark Fixtures & App Registration
+## Phase 0: Environment Configuration, Benchmark Fixtures & App Registration [COMPLETED]
 
 ### Goal
 Establish test repositories, deterministic review fixtures (known bugs, security vulnerabilities, clean code), and GitHub App credentials without writing production code.
 
-### Task 0.1: Test Fixtures and Benchmark Set
+### Task 0.1: Test Fixtures and Benchmark Set [DONE]
 - **Files:**
   - Create: `tests/fixtures/bug-prs/off-by-one.patch`
   - Create: `tests/fixtures/bug-prs/unhandled-null.patch`
@@ -212,7 +212,7 @@ Establish test repositories, deterministic review fixtures (known bugs, security
   2. Map expected finding metadata in `expected-findings.json` (expected file, line, severity, category, rule id).
   3. Verify fixtures with test diff parser.
 
-### Task 0.2: GitHub App Registration Guide & Environment Template
+### Task 0.2: GitHub App Registration Guide & Environment Template [DONE]
 - **Files:**
   - Create: `.env.example`
   - Create: `docs/setup/github-app-guide.md`
@@ -222,12 +222,12 @@ Establish test repositories, deterministic review fixtures (known bugs, security
 
 ---
 
-## Phase 1: Repository & Backend Foundation
+## Phase 1: Repository & Backend Foundation [COMPLETED]
 
 ### Goal
 Initialize the TypeScript monorepo, configure Prisma with PostgreSQL, setup BullMQ with Redis, and establish strict Zod contracts and structured logging.
 
-### Task 1.1: Monorepo Workspace & TypeScript Configuration
+### Task 1.1: Monorepo Workspace & TypeScript Configuration [DONE]
 - **Files:**
   - Create: `package.json`
   - Create: `pnpm-workspace.yaml` or `package.json` workspaces
@@ -239,7 +239,7 @@ Initialize the TypeScript monorepo, configure Prisma with PostgreSQL, setup Bull
   2. *Step 2:* Configure strict TypeScript options (`strict: true`, `noImplicitAny: true`, `target: ES2022`).
   3. *Step 3:* Verify root linting and type-checking scripts execute without error.
 
-### Task 1.2: Shared Review Contracts (`packages/review-contracts`)
+### Task 1.2: Shared Review Contracts (`packages/review-contracts`) [DONE]
 - **Files:**
   - Create: `packages/review-contracts/package.json`
   - Create: `packages/review-contracts/tsconfig.json`
@@ -255,7 +255,7 @@ Initialize the TypeScript monorepo, configure Prisma with PostgreSQL, setup Bull
   4. *Step 4: Run test to verify it passes*.
   5. *Step 5: Commit:* `feat(contracts): implement shared Zod finding and review schemas`.
 
-### Task 1.3: Observability Module (`packages/observability`)
+### Task 1.3: Observability Module (`packages/observability`) [DONE]
 - **Files:**
   - Create: `packages/observability/package.json`
   - Create: `packages/observability/src/logger.ts`
@@ -269,7 +269,7 @@ Initialize the TypeScript monorepo, configure Prisma with PostgreSQL, setup Bull
   4. *Step 4: Run test to verify it passes*.
   5. *Step 5: Commit:* `feat(observability): add structured logging with secret redaction`.
 
-### Task 1.4: Database & Prisma Schema (`packages/database`)
+### Task 1.4: Database & Prisma Schema (`packages/database`) [DONE]
 - **Files:**
   - Create: `packages/database/package.json`
   - Create: `packages/database/prisma/schema.prisma`
@@ -284,7 +284,7 @@ Initialize the TypeScript monorepo, configure Prisma with PostgreSQL, setup Bull
   4. *Step 4: Write test verifying relations and unique constraints* (e.g. `idempotency_key`, `github_delivery_id`).
   5. *Step 5: Commit:* `feat(database): define Prisma schema and initial PostgreSQL migrations`.
 
-### Task 1.5: Express API Application (`apps/api`)
+### Task 1.5: Express API Application (`apps/api`) [DONE]
 - **Files:**
   - Create: `apps/api/package.json`
   - Create: `apps/api/src/config/env.ts`
@@ -299,7 +299,7 @@ Initialize the TypeScript monorepo, configure Prisma with PostgreSQL, setup Bull
   4. *Step 4: Run test to verify it passes*.
   5. *Step 5: Commit:* `feat(api): create Express API service and health checks`.
 
-### Task 1.6: Review Worker & BullMQ Queue (`apps/worker`)
+### Task 1.6: Review Worker & BullMQ Queue (`apps/worker`) [DONE]
 - **Files:**
   - Create: `apps/worker/package.json`
   - Create: `apps/worker/src/queues/review-queue.ts`
