@@ -362,12 +362,12 @@ Implement secure GitHub webhook intake, HMAC-SHA256 signature verification, deli
 
 ---
 
-## Phase 3: Vertical Slice: Single Bug Review Agent
+## Phase 3: Vertical Slice: Single Bug Review Agent [COMPLETED]
 
 ### Goal
 Implement a single end-to-end review slice: worker receives job, fetches PR diff, invokes BugReviewAgent via Mastra, validates output against Zod schema, and stores findings in the database.
 
-### Task 3.1: LLM Provider Adapter (`packages/agents/src/llm-provider.ts`)
+### Task 3.1: LLM Provider Adapter [DONE] (`packages/agents/src/llm-provider.ts`)
 - **Files:**
   - Create: `packages/agents/package.json`
   - Create: `packages/agents/src/llm-provider.ts`
@@ -378,7 +378,7 @@ Implement a single end-to-end review slice: worker receives job, fetches PR diff
   3. *Step 3: Run test to verify it passes*.
   4. *Step 4: Commit:* `feat(agents): create unified LLM provider adapter with structured output`.
 
-### Task 3.2: Bug and Logic Review Agent
+### Task 3.2: Bug and Logic Review Agent [DONE]
 - **Files:**
   - Create: `packages/agents/src/bug-agent.ts`
   - Create: `packages/agents/src/prompts/bug-agent.prompt.ts`
@@ -390,7 +390,7 @@ Implement a single end-to-end review slice: worker receives job, fetches PR diff
   4. *Step 4: Run test to verify it passes*.
   5. *Step 5: Commit:* `feat(agents): implement Mastra BugReviewAgent with Zod contract validation`.
 
-### Task 3.3: End-to-End Worker Review Pipeline Execution
+### Task 3.3: End-to-End Worker Review Pipeline Execution [DONE]
 - **Files:**
   - Modify: `apps/worker/src/processors/review-job.processor.ts`
   - Test: `apps/worker/tests/e2e-slice.test.ts`
