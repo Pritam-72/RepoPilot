@@ -70,6 +70,14 @@ vi.mock("@acr/github", () => ({
       deletions: 1,
     },
   ]),
+  getChangedLineNumbers: vi.fn().mockReturnValue(new Set([2])),
+  publishPRReview: vi.fn().mockResolvedValue({
+    reviewId: 999,
+    inlineCommentsCount: 1,
+    summaryFindingsCount: 0,
+    skippedDuplicatesCount: 0,
+    reviewBody: "summary",
+  }),
 }));
 
 vi.mock("@acr/agents", () => ({
@@ -112,6 +120,24 @@ vi.mock("@acr/agents", () => ({
     ],
     totalFindings: 1,
     durationMs: 150,
+  }),
+  verifyAndDeduplicateFindings: vi.fn().mockReturnValue({
+    verified: [
+      {
+        title: "Off-by-one bug",
+        category: "correctness",
+        severity: "high",
+        confidence: 0.9,
+        file: "src/calc.ts",
+        line: 2,
+        description: "Index offset incorrect",
+        evidence: "let x = 1;",
+        recommendation: "Use zero indexing",
+        verificationStatus: "verified",
+      },
+    ],
+    rejected: [],
+    stats: { total: 1, verifiedCount: 1, rejectedCount: 0, duplicatesCount: 0 },
   }),
 }));
 

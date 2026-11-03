@@ -43,3 +43,4 @@ ${fileSection}${ctxSection}
 
 Return JSON: { findings: [{ title, category, severity, confidence, file, line, endLine, description, evidence, recommendation, ruleId, verificationStatus }] }`;
 }
+

@@ -16,7 +16,9 @@
     "@acr/database": "workspace:*",
     "@acr/github": "workspace:*",
     "@acr/observability": "workspace:*",
+    "@acr/repository-context": "workspace:*",
     "@acr/review-contracts": "workspace:*",
+    "@acr/static-analysis": "workspace:*",
     "bullmq": "^5.0.0",
     "ioredis": "^5.3.0",
     "zod": "^3.23.0"

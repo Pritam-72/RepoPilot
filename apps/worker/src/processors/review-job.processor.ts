@@ -3,8 +3,14 @@ import type { Job } from "bullmq";
 import { ReviewJobPayloadSchema, type ReviewJobPayload } from "@acr/review-contracts";
 import { prisma } from "@acr/database";
 import { logger } from "@acr/observability";
-import { createInstallationOctokit, getPRMetadata, getChangedFiles } from "@acr/github";
-import { runReviewOrchestrator } from "@acr/agents";
+import {
+  createInstallationOctokit,
+  getPRMetadata,
+  getChangedFiles,
+  getChangedLineNumbers,
+  publishPRReview,
+} from "@acr/github";
+import { runReviewOrchestrator, verifyAndDeduplicateFindings } from "@acr/agents";
 
 const APP_ID = Number(process.env["GITHUB_APP_ID"] ?? "0");
 const PRIVATE_KEY = process.env["GITHUB_PRIVATE_KEY"] ?? "";
@@ -22,7 +28,7 @@ function computeFindingFingerprint(
 
 export async function processReviewJob(
   job: Job<ReviewJobPayload>
-): Promise<{ processed: boolean; findingsCount: number; status: string }> {
+): Promise<{ processed: boolean; findingsCount: number; status: string; publishedCount?: number }> {
   const log = logger.child({ jobId: job.id, headSha: job.data.headSha });
   log.info("Review job started");
 
@@ -41,6 +47,14 @@ export async function processReviewJob(
     getPRMetadata(octokit, repo.owner, repo.name, pullRequestNumber),
     getChangedFiles(octokit, repo.owner, repo.name, pullRequestNumber),
   ]);
+
+  // Compute changed line numbers by file
+  const changedLinesByFile = new Map<string, Set<number>>();
+  for (const f of changedFiles) {
+    if (f.patch) {
+      changedLinesByFile.set(f.path, getChangedLineNumbers(f.patch));
+    }
+  }
 
   // 3. Ensure PullRequest record exists and upsert ReviewJob
   const pr = await prisma.pullRequest.upsert({
@@ -100,7 +114,35 @@ export async function processReviewJob(
     },
   });
 
-  // 5. Persist AgentRuns and Findings atomically
+  // 5. Verify & Deduplicate Findings
+  const fileContents = new Map<string, string>();
+  const verification = verifyAndDeduplicateFindings(
+    reviewResult.allFindings,
+    fileContents,
+    changedLinesByFile,
+    { minConfidence: 0.75, requireChangedLine: false }
+  );
+
+  // 6. Publish review to GitHub
+  let publishedCount = 0;
+  if (verification.verified.length > 0) {
+    try {
+      const pubResult = await publishPRReview({
+        octokit,
+        owner: repo.owner,
+        repo: repo.name,
+        prNumber: pullRequestNumber,
+        commitSha: headSha,
+        findings: verification.verified,
+        changedLinesByFile,
+      });
+      publishedCount = pubResult.inlineCommentsCount + pubResult.summaryFindingsCount;
+    } catch (err: unknown) {
+      log.warn({ error: err instanceof Error ? err.message : String(err) }, "Failed to publish review to GitHub");
+    }
+  }
+
+  // 7. Persist AgentRuns and Findings atomically
   const agentRunCreates = await Promise.all(
     reviewResult.agentRuns.map((ar) =>
       prisma.agentRun.create({
@@ -118,29 +160,27 @@ export async function processReviewJob(
     )
   );
 
-  const findingCreates = reviewResult.agentRuns.flatMap((ar, idx) => {
-    const runRecord = agentRunCreates[idx];
-    return ar.findings.map((f) =>
-      prisma.finding.create({
-        data: {
-          reviewJobId: reviewJob.id,
-          agentRunId: runRecord?.id,
-          fingerprint: computeFindingFingerprint(f.file, f.line, f.category, f.title),
-          category: f.category,
-          severity: f.severity,
-          confidence: f.confidence,
-          filePath: f.file,
-          line: f.line,
-          endLine: f.endLine ?? f.line,
-          title: f.title,
-          description: f.description,
-          evidence: f.evidence,
-          recommendation: f.recommendation ?? "",
-          verificationStatus: f.verificationStatus,
-        },
-      })
-    );
-  });
+  const findingCreates = verification.verified.map((f) =>
+    prisma.finding.create({
+      data: {
+        reviewJobId: reviewJob.id,
+        agentRunId: agentRunCreates[0]?.id,
+        fingerprint: computeFindingFingerprint(f.file, f.line, f.category, f.title),
+        category: f.category,
+        severity: f.severity,
+        confidence: f.confidence,
+        filePath: f.file,
+        line: f.line,
+        endLine: f.endLine ?? f.line,
+        title: f.title,
+        description: f.description,
+        evidence: f.evidence,
+        recommendation: f.recommendation ?? "",
+        verificationStatus: "verified",
+        publicationStatus: publishedCount > 0 ? "published" : "pending",
+      },
+    })
+  );
 
   await prisma.$transaction([
     ...findingCreates,
@@ -151,13 +191,19 @@ export async function processReviewJob(
   ]);
 
   log.info(
-    { totalFindings: reviewResult.totalFindings, status: reviewResult.status },
+    {
+      totalFindings: reviewResult.totalFindings,
+      verifiedCount: verification.verified.length,
+      publishedCount,
+      status: reviewResult.status,
+    },
     "Review job completed"
   );
 
   return {
     processed: true,
-    findingsCount: reviewResult.totalFindings,
+    findingsCount: verification.verified.length,
     status: reviewResult.status,
+    publishedCount,
   };
 }

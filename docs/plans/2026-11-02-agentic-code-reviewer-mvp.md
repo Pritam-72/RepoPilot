@@ -487,12 +487,12 @@ Implement Mastra review orchestrator coordinating Bug, Security, and Quality/Tes
 
 ---
 
-## Phase 6: Verification, Deduplication & GitHub Publication
+## Phase 6: Verification, Deduplication & GitHub Publication [COMPLETED]
 
 ### Goal
 Filter hallucinated, unsupported, or duplicate findings, verify line numbers against the Git diff, and publish clean inline comments and a summary review to GitHub.
 
-### Task 6.1: Finding Verification & Deduplication Engine
+### Task 6.1: Finding Verification & Deduplication Engine [DONE]
 - **Files:**
   - Create: `packages/agents/src/verification-service.ts`
   - Test: `packages/agents/tests/verification.test.ts`
@@ -507,7 +507,7 @@ Filter hallucinated, unsupported, or duplicate findings, verify line numbers aga
   4. *Step 4: Run test to verify it passes*.
   5. *Step 5: Commit:* `feat(verification): implement evidence verification and finding deduplication`.
 
-### Task 6.2: GitHub Review Publisher
+### Task 6.2: GitHub Review Publisher [DONE]
 - **Files:**
   - Create: `packages/github/src/publisher.ts`
   - Test: `packages/github/tests/publisher.test.ts`
