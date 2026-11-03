@@ -114,8 +114,11 @@ to meet a calendar date.
                                       validation        
 
   9                 Improve and scale Better retrieval, Measured quality
-                                      policies,         and capacity
-                                      analytics         gains
+                    policies,         and capacity
+                    analytics         gains
+
+  10                Production CI/CD  CI workflow,      Automated gates
+                    and documentation docs, blueprints  and guides complete
   -----------------------------------------------------------------------
 
 ------------------------------------------------------------------------
@@ -684,6 +687,24 @@ measured usage.
 
 New capabilities show measurable improvements in quality, coverage, or
 operational efficiency and do not weaken existing safety controls.
+
+------------------------------------------------------------------------
+
+## Phase 10 --- Production CI/CD & Public Release Readiness
+
+**Goal:** Establish reproducible CI/CD pipelines, repository documentation, environment blueprints, and public release artifacts.
+
+### Tasks
+
+-   [x] Configure GitHub Actions CI workflow for typecheck, testing, and benchmark gate validation (`.github/workflows/ci.yml`).
+-   [x] Create centralized `.env.example` blueprint for deployment.
+-   [x] Create comprehensive root `README.md` with system architecture diagrams, quickstart, and benchmark results.
+-   [x] Publish `CHANGELOG.md` with milestone progression.
+-   [x] Publish `KNOWN_ISSUES.md` with operational limits and security boundaries.
+
+### Definition of done
+
+The repository has continuous integration validation on pull requests, complete setup documentation, and clean operational guides.
 
 ------------------------------------------------------------------------
 
