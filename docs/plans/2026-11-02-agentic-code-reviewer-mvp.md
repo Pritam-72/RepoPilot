@@ -522,12 +522,12 @@ Filter hallucinated, unsupported, or duplicate findings, verify line numbers aga
 
 ---
 
-## Phase 7: Web Dashboard, Observability & Pilot Hardening
+## Phase 7: Web Dashboard, Observability & Pilot Hardening [COMPLETED]
 
 ### Goal
 Build the Next.js web application for monitoring reviews, inspecting findings, submitting developer feedback, and hardening the platform for pilot testing.
 
-### Task 7.1: Next.js Dashboard & Repository List (`apps/web`)
+### Task 7.1: Next.js Dashboard & Repository List (`apps/web`) [DONE]
 - **Files:**
   - Create: `apps/web/package.json`
   - Create: `apps/web/src/app/layout.tsx`
@@ -542,7 +542,7 @@ Build the Next.js web application for monitoring reviews, inspecting findings, s
   3. *Step 3: Run test to verify it passes*.
   4. *Step 4: Commit:* `feat(web): build repository overview and review run list dashboard`.
 
-### Task 7.2: Review Run Detail & Finding Feedback UI
+### Task 7.2: Review Run Detail & Finding Feedback UI [DONE]
 - **Files:**
   - Create: `apps/web/src/app/reviews/[id]/page.tsx`
   - Create: `apps/web/src/components/finding-card.tsx`
@@ -555,7 +555,7 @@ Build the Next.js web application for monitoring reviews, inspecting findings, s
   3. *Step 3: Run test to verify it passes*.
   4. *Step 4: Commit:* `feat(web): build review detail view with diff viewer and finding feedback`.
 
-### Task 7.3: Benchmark Evaluation Harness & Pilot Readiness Gate
+### Task 7.3: Benchmark Evaluation Harness & Pilot Readiness Gate [DONE]
 - **Files:**
   - Create: `tests/evaluation/run-benchmark.ts`
   - Create: `tests/evaluation/benchmark-reporter.ts`

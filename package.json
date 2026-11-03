@@ -8,13 +8,16 @@
     "test": "turbo run test",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "dev": "turbo run dev --parallel"
+    "dev": "turbo run dev --parallel",
+    "benchmark": "tsx tests/evaluation/run-benchmark.ts",
+    "test:benchmark": "vitest run tests/evaluation/benchmark.test.ts"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "eslint": "^9.0.0",
+    "tsx": "^4.0.0",
     "turbo": "^2.0.0",
     "typescript": "^5.5.0",
-    "eslint": "^9.0.0",
     "vitest": "^2.0.0"
   },
   "packageManager": "pnpm@9.0.0",
