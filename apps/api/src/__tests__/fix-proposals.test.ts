@@ -127,3 +127,4 @@ describe("Fix Proposal Endpoints (Task 8.2)", () => {
     expect(rejectRes.body.status).toBe("rejected");
   });
 });
+

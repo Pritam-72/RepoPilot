@@ -14,3 +14,4 @@ export const FixProposalSchema = z.object({
 });
 
 export type FixProposal = z.infer<typeof FixProposalSchema>;
+

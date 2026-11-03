@@ -94,3 +94,4 @@ describe("Fix Proposal Agent (Task 8.2)", () => {
     expect(mockExecutor).toHaveBeenCalled();
   });
 });
+
