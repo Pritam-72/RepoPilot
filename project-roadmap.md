@@ -119,6 +119,9 @@ to meet a calendar date.
 
   10                Production CI/CD  CI workflow,      Automated gates
                     and documentation docs, blueprints  and guides complete
+
+  11                Organization      Analytics API,    Live metrics and
+                    Analytics & UI    Quality Dashboard settings UI
   -----------------------------------------------------------------------
 
 ------------------------------------------------------------------------
@@ -705,6 +708,23 @@ operational efficiency and do not weaken existing safety controls.
 ### Definition of done
 
 The repository has continuous integration validation on pull requests, complete setup documentation, and clean operational guides.
+
+------------------------------------------------------------------------
+
+## Phase 11 --- Organization Analytics & Quality Settings (FR-22)
+
+**Goal:** Provide organization-level visibility into review latency, findings distribution, feedback trends, and interactive repository configuration.
+
+### Tasks
+
+-   [x] Implement aggregate analytics endpoint (`GET /api/v1/analytics/overview`) in `apps/api`.
+-   [x] Add organization analytics dashboard view (`/analytics`) in `apps/web`.
+-   [x] Add interactive repository review settings page (`/repositories/[id]/settings`) in `apps/web`.
+-   [x] Add unit tests for analytics API and web dashboard views.
+
+### Definition of done
+
+Organization leads can track review throughput, mean latency, finding severity breakdown, and manage per-repository agent policies through the web UI.
 
 ------------------------------------------------------------------------
 

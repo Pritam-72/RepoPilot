@@ -8,6 +8,7 @@ export function Nav({ activePath = "/" }: NavProps) {
   const links = [
     { label: "Overview", href: "/" },
     { label: "Repositories", href: "/repositories" },
+    { label: "Analytics", href: "/analytics" },
     { label: "Reviews", href: "/reviews" },
   ];
 

@@ -4,6 +4,21 @@ All notable changes and architectural decisions for the **RepoPilot / Agentic Co
 
 ---
 
+## [Phase 11] - 2026-11-03
+### Added
+- **Organization Analytics Endpoint** (`apps/api/src/routes/analytics.ts`): Aggregate review statistics, duration metrics, verified finding rates, and developer feedback acceptance percentages.
+- **Analytics Dashboard UI** (`apps/web/src/app/analytics/page.tsx`): Overview KPI cards and distribution bars for finding severities and agent categories.
+- **Interactive Repository Settings UI** (`apps/web/src/app/repositories/[id]/settings/page.tsx`): Per-repository review automation toggles, agent role selection, confidence threshold sliders, and convention viewing.
+
+---
+
+## [Phase 10] - 2026-11-03
+### Added
+- **GitHub Actions CI/CD Pipeline** (`.github/workflows/ci.yml`): Automated typechecking, monorepo test suites, and pilot benchmark gate verification on push and pull requests.
+- **Root Documentation & Environment Blueprint** (`README.md`, `.env.example`): Architecture blueprints, Quickstart guide, and environment variable configurations.
+
+---
+
 ## [Phase 9] - 2026-11-03
 ### Added
 - **PerformanceReviewAgent** (`packages/agents/src/performance-agent.ts`): Analyzes code diffs and AST queries for $O(N^2)$ algorithmic loops, N+1 query patterns, unindexed access, and resource leaks.
