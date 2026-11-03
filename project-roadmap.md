@@ -128,20 +128,20 @@ to meet a calendar date.
 
 ### Tasks
 
--   [ ] Read PRD.md and TRD.md.
--   [ ] Decide the first supported language.
--   [ ] Select the initial LLM provider and one fallback strategy, if
+-   [x] Read PRD.md and TRD.md.
+-   [x] Decide the first supported language.
+-   [x] Select the initial LLM provider and one fallback strategy, if
     needed.
--   [ ] Create a GitHub App in a development account.
--   [ ] Create a dedicated test repository with sample pull requests.
--   [ ] Define the minimum GitHub permissions.
--   [ ] Decide whether MVP comments are automatically published or first
+-   [x] Create a GitHub App in a development account.
+-   [x] Create a dedicated test repository with sample pull requests.
+-   [x] Define the minimum GitHub permissions.
+-   [x] Decide whether MVP comments are automatically published or first
     shown in a preview.
--   [ ] Define maximum file count, diff size, context size, and
+-   [x] Define maximum file count, diff size, context size, and
     model-call budgets.
--   [ ] Create a small benchmark containing known bugs, security issues,
+-   [x] Create a small benchmark containing known bugs, security issues,
     and clean changes.
--   [ ] Create architecture diagrams and initial issue tracker.
+-   [x] Create architecture diagrams and initial issue tracker.
 
 ### Check before moving on
 
@@ -182,19 +182,19 @@ locally and in CI.
 
 ### Tasks
 
--   [ ] Initialize a TypeScript project or monorepo.
--   [ ] Configure strict TypeScript settings.
--   [ ] Create API, worker, shared-contract, and database modules.
--   [ ] Add Express.js and health-check endpoints.
--   [ ] Add PostgreSQL and Prisma.
--   [ ] Add Redis and BullMQ.
--   [ ] Add Zod request and response schemas.
--   [ ] Add environment validation at startup.
--   [ ] Add structured logging and correlation IDs.
--   [ ] Add Vitest and initial unit tests.
--   [ ] Create Docker Compose for local dependencies.
--   [ ] Add formatting, linting, type-checking, and test commands to CI.
--   [ ] Add `.env.example` and ensure real secrets are ignored by Git.
+-   [x] Initialize a TypeScript project or monorepo.
+-   [x] Configure strict TypeScript settings.
+-   [x] Create API, worker, shared-contract, and database modules.
+-   [x] Add Express.js and health-check endpoints.
+-   [x] Add PostgreSQL and Prisma.
+-   [x] Add Redis and BullMQ.
+-   [x] Add Zod request and response schemas.
+-   [x] Add environment validation at startup.
+-   [x] Add structured logging and correlation IDs.
+-   [x] Add Vitest and initial unit tests.
+-   [x] Create Docker Compose for local dependencies.
+-   [x] Add formatting, linting, type-checking, and test commands to CI.
+-   [x] Add `.env.example` and ensure real secrets are ignored by Git.
 
 ### Check before moving on
 
@@ -236,23 +236,23 @@ to review.
 
 ### Tasks
 
--   [ ] Create and configure the GitHub App.
--   [ ] Configure only required webhook events.
--   [ ] Implement webhook endpoint using the raw request body for
+-   [x] Create and configure the GitHub App.
+-   [x] Configure only required webhook events.
+-   [x] Implement webhook endpoint using the raw request body for
     signature verification.
--   [ ] Validate `X-Hub-Signature-256`.
--   [ ] Validate installation and repository identity.
--   [ ] Persist webhook delivery IDs.
--   [ ] Handle opened, reopened, and synchronize PR actions.
--   [ ] Enqueue a job after durable event acceptance.
--   [ ] Implement installation-scoped Octokit authentication.
--   [ ] Fetch PR metadata, base SHA, head SHA, changed files, and patch
+-   [x] Validate `X-Hub-Signature-256`.
+-   [x] Validate installation and repository identity.
+-   [x] Persist webhook delivery IDs.
+-   [x] Handle opened, reopened, and synchronize PR actions.
+-   [x] Enqueue a job after durable event acceptance.
+-   [x] Implement installation-scoped Octokit authentication.
+-   [x] Fetch PR metadata, base SHA, head SHA, changed files, and patch
     data.
--   [ ] Fetch source contents at the exact head SHA.
--   [ ] Handle pagination, deleted files, renames, binary files, and
+-   [x] Fetch source contents at the exact head SHA.
+-   [x] Handle pagination, deleted files, renames, binary files, and
     missing patches.
--   [ ] Add retry and GitHub rate-limit handling.
--   [ ] Store review-job and pull-request records.
+-   [x] Add retry and GitHub rate-limit handling.
+-   [x] Store review-job and pull-request records.
 
 ### Check before moving on
 
@@ -297,18 +297,18 @@ before adding more agents.
 
 ### Tasks
 
--   [ ] Create a review input contract.
--   [ ] Create a prompt and output schema for one bug/logic review
+-   [x] Create a review input contract.
+-   [x] Create a prompt and output schema for one bug/logic review
     agent.
--   [ ] Pass only changed code and a small amount of relevant context.
--   [ ] Ask the model to distinguish observed evidence from inference.
--   [ ] Require a structured response with an empty-findings option.
--   [ ] Validate all output using Zod.
--   [ ] Store model name, prompt version, duration, token usage, and
+-   [x] Pass only changed code and a small amount of relevant context.
+-   [x] Ask the model to distinguish observed evidence from inference.
+-   [x] Require a structured response with an empty-findings option.
+-   [x] Validate all output using Zod.
+-   [x] Store model name, prompt version, duration, token usage, and
     output.
--   [ ] Add provider timeout, bounded retries, and error handling.
--   [ ] Test against known-bug and clean PR fixtures.
--   [ ] Save model responses for reproducible evaluation.
+-   [x] Add provider timeout, bounded retries, and error handling.
+-   [x] Test against known-bug and clean PR fixtures.
+-   [x] Save model responses for reproducible evaluation.
 
 ### Check before moving on
 
@@ -351,20 +351,20 @@ changed lines.
 
 ### Tasks
 
--   [ ] Parse diff hunks and changed line ranges.
--   [ ] Detect language and file type.
--   [ ] Retrieve complete relevant functions or classes where practical.
--   [ ] Use Tree-sitter for supported-language structural parsing.
--   [ ] Retrieve imports, definitions, callers, related interfaces, and
+-   [x] Parse diff hunks and changed line ranges.
+-   [x] Detect language and file type.
+-   [x] Retrieve complete relevant functions or classes where practical.
+-   [x] Use Tree-sitter for supported-language structural parsing.
+-   [x] Retrieve imports, definitions, callers, related interfaces, and
     nearby tests.
--   [ ] Add bounded lexical search for symbols and references.
--   [ ] Add one static-analysis adapter, preferably Semgrep or the
+-   [x] Add bounded lexical search for symbols and references.
+-   [x] Add one static-analysis adapter, preferably Semgrep or the
     relevant language linter.
--   [ ] Normalize tool results into a shared schema.
--   [ ] Preserve provenance: repository, commit SHA, path, and line
+-   [x] Normalize tool results into a shared schema.
+-   [x] Preserve provenance: repository, commit SHA, path, and line
     range.
--   [ ] Add context-size and file-count limits.
--   [ ] Exclude generated files, binaries, vendor folders, and
+-   [x] Add context-size and file-count limits.
+-   [x] Exclude generated files, binaries, vendor folders, and
     configured sensitive files.
 
 ### Check before moving on
@@ -410,17 +410,17 @@ making the workflow unpredictable.
 
 ### Tasks
 
--   [ ] Implement the orchestrator using Mastra.
--   [ ] Define explicit review state and transitions.
--   [ ] Add bug/logic, security, and quality/test-gap agents.
--   [ ] Define separate prompts, tools, and output contracts.
--   [ ] Route agents according to file types and change characteristics.
--   [ ] Run independent agents in parallel with concurrency limits.
--   [ ] Add per-agent timeouts and bounded retries.
--   [ ] Persist each agent run separately.
--   [ ] Aggregate results into a common finding format.
--   [ ] Record which agents were selected or skipped and why.
--   [ ] Add tests for partial agent failure and empty findings.
+-   [x] Implement the orchestrator using Mastra.
+-   [x] Define explicit review state and transitions.
+-   [x] Add bug/logic, security, and quality/test-gap agents.
+-   [x] Define separate prompts, tools, and output contracts.
+-   [x] Route agents according to file types and change characteristics.
+-   [x] Run independent agents in parallel with concurrency limits.
+-   [x] Add per-agent timeouts and bounded retries.
+-   [x] Persist each agent run separately.
+-   [x] Aggregate results into a common finding format.
+-   [x] Record which agents were selected or skipped and why.
+-   [x] Add tests for partial agent failure and empty findings.
 
 ### Check before moving on
 
@@ -464,20 +464,20 @@ locations.
 
 ### Tasks
 
--   [ ] Implement finding verification.
--   [ ] Confirm cited paths and lines against the reviewed commit.
--   [ ] Confirm inline locations are valid for the PR diff.
--   [ ] Check evidence snippets against retrieved source.
--   [ ] Detect duplicate or overlapping findings.
--   [ ] Compare LLM findings with static-analysis evidence.
--   [ ] Apply severity and confidence thresholds.
--   [ ] Record rejection reasons for unsupported findings.
--   [ ] Generate a concise review summary.
--   [ ] Publish inline comments where GitHub accepts the position.
--   [ ] Put findings without valid inline positions in the summary.
--   [ ] Store GitHub review and comment IDs.
--   [ ] Make publication idempotent.
--   [ ] Handle GitHub API errors and rate limits.
+-   [x] Implement finding verification.
+-   [x] Confirm cited paths and lines against the reviewed commit.
+-   [x] Confirm inline locations are valid for the PR diff.
+-   [x] Check evidence snippets against retrieved source.
+-   [x] Detect duplicate or overlapping findings.
+-   [x] Compare LLM findings with static-analysis evidence.
+-   [x] Apply severity and confidence thresholds.
+-   [x] Record rejection reasons for unsupported findings.
+-   [x] Generate a concise review summary.
+-   [x] Publish inline comments where GitHub accepts the position.
+-   [x] Put findings without valid inline positions in the summary.
+-   [x] Store GitHub review and comment IDs.
+-   [x] Make publication idempotent.
+-   [x] Handle GitHub API errors and rate limits.
 
 ### Check before moving on
 
@@ -522,20 +522,20 @@ small pilot.
 
 ### Tasks
 
--   [ ] Build repository connection and listing UI.
--   [ ] Build pull-request and review-history views.
--   [ ] Show review status and progress.
--   [ ] Group findings by severity and category.
--   [ ] Display evidence, recommendations, and source locations.
--   [ ] Add useful/incorrect/dismissed feedback controls.
+-   [x] Build repository connection and listing UI.
+-   [x] Build pull-request and review-history views.
+-   [x] Show review status and progress.
+-   [x] Group findings by severity and category.
+-   [x] Display evidence, recommendations, and source locations.
+-   [x] Add useful/incorrect/dismissed feedback controls.
 -   [ ] Add repository review settings.
--   [ ] Add structured logs and correlation IDs.
--   [ ] Add metrics for queue latency, review duration, failures, and
+-   [x] Add structured logs and correlation IDs.
+-   [x] Add metrics for queue latency, review duration, failures, and
     token cost.
--   [ ] Add retry and failed-job visibility.
+-   [x] Add retry and failed-job visibility.
 -   [ ] Add authorization tests for repository data.
--   [ ] Run an end-to-end test suite.
--   [ ] Run the benchmark and document results.
+-   [x] Run an end-to-end test suite.
+-   [x] Run the benchmark and document results.
 -   [ ] Pilot with a small number of non-critical repositories.
 
 ### Check before moving on
