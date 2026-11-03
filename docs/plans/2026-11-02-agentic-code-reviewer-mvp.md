@@ -344,7 +344,7 @@ Implement secure GitHub webhook intake, HMAC-SHA256 signature verification, deli
   4. *Step 4: Run test to verify it passes*.
   5. *Step 5: Commit:* `feat(api): add idempotent PR webhook handler and BullMQ dispatch`.
 
-### Task 2.3: Octokit Client & Git Diff Parser (`packages/github`)
+### Task 2.3: Octokit Client & Git Diff Parser (`packages/github`) [DONE]
 - **Files:**
   - Create: `packages/github/package.json`
   - Create: `packages/github/src/client.ts`
@@ -433,7 +433,7 @@ Provide agents with surrounding syntactic context using Tree-sitter AST queries,
   4. *Step 4: Run test to verify it passes*.
   5. *Step 5: Commit:* `feat(context): implement bounded repository context builder and token budgeting`.
 
-### Task 4.3: Deterministic Static Analysis Adapter (`packages/static-analysis`)
+### Task 4.3: Deterministic Static Analysis Adapter (`packages/static-analysis`) [DONE]
 - **Files:**
   - Create: `packages/static-analysis/package.json`
   - Create: `packages/static-analysis/src/runner.ts`
