@@ -23,3 +23,4 @@ export function detectLanguage(filePath: string): SupportedLanguage {
       return "unknown";
   }
 }
+

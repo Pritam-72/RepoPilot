@@ -92,3 +92,4 @@ describe("Semgrep Runner", () => {
     expect(findings).toEqual([]);
   });
 });
+

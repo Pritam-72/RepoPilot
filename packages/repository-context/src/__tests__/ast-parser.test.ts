@@ -74,3 +74,4 @@ def calculate_discount(price: float) -> float:
     expect(parseScopes("test.ts", "")).toEqual([]);
   });
 });
+

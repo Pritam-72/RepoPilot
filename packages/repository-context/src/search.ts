@@ -71,3 +71,4 @@ export function extractReferencedSymbols(diffContent: string): string[] {
   }
   return Array.from(unique);
 }
+
