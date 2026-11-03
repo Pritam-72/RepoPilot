@@ -37,3 +37,4 @@ describe("Web Dashboard (Task 7.1)", () => {
     expect(screen.getByText("ecommerce-api")).toBeDefined();
   });
 });
+

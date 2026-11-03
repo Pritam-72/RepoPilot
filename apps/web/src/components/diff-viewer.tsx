@@ -85,3 +85,4 @@ export function DiffViewer({ patch, highlightLine }: DiffViewerProps) {
     </div>
   );
 }
+
