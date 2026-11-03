@@ -448,12 +448,12 @@ Provide agents with surrounding syntactic context using Tree-sitter AST queries,
 
 ---
 
-## Phase 5: Multi-Agent Orchestration
+## Phase 5: Multi-Agent Orchestration [COMPLETED]
 
 ### Goal
 Implement Mastra review orchestrator coordinating Bug, Security, and Quality/Test-Gap review agents alongside static analysis with concurrency controls and partial-failure handling.
 
-### Task 5.1: Security Review Agent
+### Task 5.1: Security Review Agent [DONE]
 - **Files:**
   - Create: `packages/agents/src/security-agent.ts`
   - Create: `packages/agents/src/prompts/security-agent.prompt.ts`
@@ -464,7 +464,7 @@ Implement Mastra review orchestrator coordinating Bug, Security, and Quality/Tes
   3. *Step 3: Run test to verify it passes*.
   4. *Step 4: Commit:* `feat(agents): implement SecurityReviewAgent with injection & CWE detection`.
 
-### Task 5.2: Code Quality & Test-Gap Agent
+### Task 5.2: Code Quality & Test-Gap Agent [DONE]
 - **Files:**
   - Create: `packages/agents/src/quality-agent.ts`
   - Create: `packages/agents/src/prompts/quality-agent.prompt.ts`
@@ -475,7 +475,7 @@ Implement Mastra review orchestrator coordinating Bug, Security, and Quality/Tes
   3. *Step 3: Run test to verify it passes*.
   4. *Step 4: Commit:* `feat(agents): implement CodeQualityAndTestGapAgent`.
 
-### Task 5.3: Mastra Review Orchestrator & State Machine
+### Task 5.3: Mastra Review Orchestrator & State Machine [DONE]
 - **Files:**
   - Create: `packages/agents/src/orchestrator.ts`
   - Test: `packages/agents/tests/orchestrator.test.ts`
