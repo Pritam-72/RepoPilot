@@ -22,3 +22,4 @@ describe("Analytics Page (FR-22)", () => {
     expect(screen.getByText("performance")).toBeDefined();
   });
 });
+

@@ -122,6 +122,9 @@ to meet a calendar date.
 
   11                Organization      Analytics API,    Live metrics and
                     Analytics & UI    Quality Dashboard settings UI
+
+  12                Regression Test   Targeted test     Reproducing test
+                    Generation Agent  cases & runner    proposals created
   -----------------------------------------------------------------------
 
 ------------------------------------------------------------------------
@@ -725,6 +728,23 @@ The repository has continuous integration validation on pull requests, complete 
 ### Definition of done
 
 Organization leads can track review throughput, mean latency, finding severity breakdown, and manage per-repository agent policies through the web UI.
+
+------------------------------------------------------------------------
+
+## Phase 12 --- Automated Regression Test Generation Agent (PRD 4.2 & 7.6)
+
+**Goal:** Automatically generate targeted, runnable regression test cases that reproduce and assert the expected behavior of verified findings.
+
+### Tasks
+
+-   [x] Define `TestProposalSchema` and contract types in `@acr/review-contracts`.
+-   [x] Implement `TestGenerationAgent` (`packages/agents/src/test-gen-agent.ts`) with Vitest/Pytest resolution.
+-   [x] Add REST API endpoints (`POST /api/v1/test-proposals`, `GET /:id`) in `apps/api`.
+-   [x] Add unit tests for test generation agent and API routes.
+
+### Definition of done
+
+A verified finding can produce an isolated, deterministic regression test case in the appropriate test framework, validated in the disposable sandbox environment.
 
 ------------------------------------------------------------------------
 

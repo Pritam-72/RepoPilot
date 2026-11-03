@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const FindingSchema = z.object({
+  id: z.string().optional(),
   title: z.string().min(1).max(200),
   category: z.enum(["correctness", "security", "performance", "maintainability", "testing", "dependency"]),
   severity: z.enum(["critical", "high", "medium", "low", "informational"]),

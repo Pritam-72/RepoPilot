@@ -2,6 +2,7 @@ import express, { type Express, type Request } from "express";
 import { env } from "./config/env.js";
 import { healthRouter } from "./routes/health.js";
 import { createFixProposalRouter } from "./routes/fix-proposals.js";
+import { createTestProposalRouter } from "./routes/test-proposals.js";
 import { createRepositoryRouter } from "./routes/repositories.js";
 import { createReviewRouter } from "./routes/reviews.js";
 import { createAnalyticsRouter } from "./routes/analytics.js";
@@ -33,6 +34,7 @@ export function createApp(): Express {
   app.use("/api/v1/repositories", createRepositoryRouter());
   app.use("/api/v1", createReviewRouter());
   app.use("/api/v1/fix-proposals", createFixProposalRouter());
+  app.use("/api/v1/test-proposals", createTestProposalRouter());
 
   app.use(errorHandler);
 

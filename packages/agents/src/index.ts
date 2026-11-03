@@ -7,4 +7,5 @@ export * from "./verification-service.js";
 export * from "./fix-agent.js";
 export * from "./performance-agent.js";
 export * from "./dependency-agent.js";
+export * from "./test-gen-agent.js";
 

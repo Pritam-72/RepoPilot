@@ -104,3 +104,4 @@ describe("Analytics API (/api/v1/analytics/overview)", () => {
     );
   });
 });
+

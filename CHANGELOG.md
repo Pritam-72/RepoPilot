@@ -4,6 +4,14 @@ All notable changes and architectural decisions for the **RepoPilot / Agentic Co
 
 ---
 
+## [Phase 12] - 2026-11-03
+### Added
+- **Automated Regression Test Generation Agent** (`packages/agents/src/test-gen-agent.ts`): Automatically creates minimal, runnable regression test cases verifying boundary logic and defects identified by verified findings.
+- **Test Proposal Schema Contract** (`packages/review-contracts/src/test-proposal.schema.ts`): Type-safe entity schema for generated regression tests and sandbox validation logs.
+- **Test Proposals API** (`apps/api/src/routes/test-proposals.ts`): Endpoints for requesting and inspecting automated regression test cases.
+
+---
+
 ## [Phase 11] - 2026-11-03
 ### Added
 - **Organization Analytics Endpoint** (`apps/api/src/routes/analytics.ts`): Aggregate review statistics, duration metrics, verified finding rates, and developer feedback acceptance percentages.

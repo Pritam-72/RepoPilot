@@ -29,3 +29,4 @@ describe("Repository Settings Page (Task 7.1 / FR-21)", () => {
     expect(screen.getByTestId("save-success-banner")).toBeDefined();
   });
 });
+
