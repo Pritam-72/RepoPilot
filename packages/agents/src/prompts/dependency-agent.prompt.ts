@@ -16,3 +16,4 @@ RULES FOR FINDINGS:
 - Provide clear remediation advice.
 - If dependencies are clean, safe, and properly pinned, return an empty findings list [].
 `;
+

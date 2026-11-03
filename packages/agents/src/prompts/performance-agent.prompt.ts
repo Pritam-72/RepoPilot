@@ -16,3 +16,4 @@ RULES FOR FINDINGS:
 - Provide a concrete, actionable recommendation to improve performance.
 - If the changes do not introduce measurable performance problems, return an empty findings list [].
 `;
+

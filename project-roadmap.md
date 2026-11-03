@@ -528,15 +528,15 @@ small pilot.
 -   [x] Group findings by severity and category.
 -   [x] Display evidence, recommendations, and source locations.
 -   [x] Add useful/incorrect/dismissed feedback controls.
--   [ ] Add repository review settings.
+-   [x] Add repository review settings.
 -   [x] Add structured logs and correlation IDs.
 -   [x] Add metrics for queue latency, review duration, failures, and
     token cost.
 -   [x] Add retry and failed-job visibility.
--   [ ] Add authorization tests for repository data.
+-   [x] Add authorization tests for repository data.
 -   [x] Run an end-to-end test suite.
 -   [x] Run the benchmark and document results.
--   [ ] Pilot with a small number of non-critical repositories.
+-   [x] Pilot with a small number of non-critical repositories.
 
 ### Check before moving on
 

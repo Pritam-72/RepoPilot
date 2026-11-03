@@ -2,6 +2,8 @@ import express, { type Express, type Request } from "express";
 import { env } from "./config/env.js";
 import { healthRouter } from "./routes/health.js";
 import { createFixProposalRouter } from "./routes/fix-proposals.js";
+import { createRepositoryRouter } from "./routes/repositories.js";
+import { createReviewRouter } from "./routes/reviews.js";
 import { correlationMiddleware } from "./middleware/correlation.js";
 import { errorHandler } from "./middleware/error-handler.js";
 import { logger } from "@acr/observability";
@@ -26,6 +28,8 @@ export function createApp(): Express {
 
   // Mount routes
   app.use("/api/v1", healthRouter);
+  app.use("/api/v1/repositories", createRepositoryRouter());
+  app.use("/api/v1", createReviewRouter());
   app.use("/api/v1/fix-proposals", createFixProposalRouter());
 
   app.use(errorHandler);

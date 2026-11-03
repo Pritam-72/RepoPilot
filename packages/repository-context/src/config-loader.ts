@@ -124,3 +124,4 @@ export function shouldIgnoreFile(filePath: string, ignorePaths: string[]): boole
 
   return false;
 }
+
