@@ -4,7 +4,7 @@ import { ReviewJobPayloadSchema, type ReviewJobPayload } from "@acr/review-contr
 import { prisma } from "@acr/database";
 import { logger } from "@acr/observability";
 import { createInstallationOctokit, getPRMetadata, getChangedFiles } from "@acr/github";
-import { runBugReviewAgent } from "@acr/agents";
+import { runReviewOrchestrator } from "@acr/agents";
 
 const APP_ID = Number(process.env["GITHUB_APP_ID"] ?? "0");
 const PRIVATE_KEY = process.env["GITHUB_PRIVATE_KEY"] ?? "";
@@ -22,7 +22,7 @@ function computeFindingFingerprint(
 
 export async function processReviewJob(
   job: Job<ReviewJobPayload>
-): Promise<{ processed: boolean; findingsCount: number }> {
+): Promise<{ processed: boolean; findingsCount: number; status: string }> {
   const log = logger.child({ jobId: job.id, headSha: job.data.headSha });
   log.info("Review job started");
 
@@ -79,19 +79,8 @@ export async function processReviewJob(
     },
   });
 
-  // 4. Record AgentRun
-  const agentRun = await prisma.agentRun.create({
-    data: {
-      reviewJobId: reviewJob.id,
-      agentType: "bug",
-      status: "running",
-      modelProvider: "google",
-      modelName: "gemini-2.0-flash-exp",
-    },
-  });
-
-  // 5. Run BugReviewAgent
-  const agentOutput = await runBugReviewAgent({
+  // 4. Run Multi-Agent Orchestrator
+  const reviewResult = await runReviewOrchestrator({
     repository: {
       owner: repo.owner,
       name: repo.name,
@@ -105,23 +94,37 @@ export async function processReviewJob(
     },
     changedFiles,
     context: [],
-    reviewPolicy: { enabledCategories: ["correctness"], minimumConfidence: 0.5 },
+    reviewPolicy: {
+      enabledCategories: ["correctness", "security", "testing", "maintainability"],
+      minimumConfidence: 0.5,
+    },
   });
 
-  // 6. Persist findings & update statuses atomically
-  await prisma.$transaction([
-    prisma.agentRun.update({
-      where: { id: agentRun.id },
-      data: {
-        status: "completed",
-        outputJson: { findingsCount: agentOutput.findings.length },
-      },
-    }),
-    ...agentOutput.findings.map((f) =>
+  // 5. Persist AgentRuns and Findings atomically
+  const agentRunCreates = await Promise.all(
+    reviewResult.agentRuns.map((ar) =>
+      prisma.agentRun.create({
+        data: {
+          reviewJobId: reviewJob.id,
+          agentType: ar.agentType,
+          status: ar.status,
+          modelProvider: "google",
+          modelName: "gemini-2.0-flash-exp",
+          durationMs: ar.durationMs,
+          errorMessage: ar.error,
+          outputJson: { findingsCount: ar.findings.length },
+        },
+      })
+    )
+  );
+
+  const findingCreates = reviewResult.agentRuns.flatMap((ar, idx) => {
+    const runRecord = agentRunCreates[idx];
+    return ar.findings.map((f) =>
       prisma.finding.create({
         data: {
           reviewJobId: reviewJob.id,
-          agentRunId: agentRun.id,
+          agentRunId: runRecord?.id,
           fingerprint: computeFindingFingerprint(f.file, f.line, f.category, f.title),
           category: f.category,
           severity: f.severity,
@@ -136,13 +139,25 @@ export async function processReviewJob(
           verificationStatus: f.verificationStatus,
         },
       })
-    ),
+    );
+  });
+
+  await prisma.$transaction([
+    ...findingCreates,
     prisma.reviewJob.update({
       where: { id: reviewJob.id },
-      data: { status: "completed" },
+      data: { status: reviewResult.status },
     }),
   ]);
 
-  log.info({ findings: agentOutput.findings.length }, "Review job completed");
-  return { processed: true, findingsCount: agentOutput.findings.length };
+  log.info(
+    { totalFindings: reviewResult.totalFindings, status: reviewResult.status },
+    "Review job completed"
+  );
+
+  return {
+    processed: true,
+    findingsCount: reviewResult.totalFindings,
+    status: reviewResult.status,
+  };
 }

@@ -73,8 +73,30 @@ vi.mock("@acr/github", () => ({
 }));
 
 vi.mock("@acr/agents", () => ({
-  runBugReviewAgent: vi.fn().mockResolvedValue({
-    findings: [
+  runReviewOrchestrator: vi.fn().mockResolvedValue({
+    status: "completed",
+    agentRuns: [
+      {
+        agentType: "bug",
+        status: "completed",
+        findings: [
+          {
+            title: "Off-by-one bug",
+            category: "correctness",
+            severity: "high",
+            confidence: 0.9,
+            file: "src/calc.ts",
+            line: 2,
+            description: "Index offset incorrect",
+            evidence: "let x = 1;",
+            recommendation: "Use zero indexing",
+            verificationStatus: "unverified",
+          },
+        ],
+        durationMs: 150,
+      },
+    ],
+    allFindings: [
       {
         title: "Off-by-one bug",
         category: "correctness",
@@ -88,19 +110,21 @@ vi.mock("@acr/agents", () => ({
         verificationStatus: "unverified",
       },
     ],
+    totalFindings: 1,
+    durationMs: 150,
   }),
 }));
 
 const { processReviewJob } = await import("../processors/review-job.processor.js");
 const { prisma } = await import("@acr/database");
-const { runBugReviewAgent } = await import("@acr/agents");
+const { runReviewOrchestrator } = await import("@acr/agents");
 
-describe("Review Job Processor - End to End Slice", () => {
+describe("Review Job Processor - Multi-Agent Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("processes a review job and saves findings in Prisma", async () => {
+  it("processes a review job and saves orchestrated findings in Prisma", async () => {
     const mockJob = {
       id: "job-abc",
       data: {
@@ -117,13 +141,14 @@ describe("Review Job Processor - End to End Slice", () => {
 
     expect(result.processed).toBe(true);
     expect(result.findingsCount).toBe(1);
+    expect(result.status).toBe("completed");
 
     expect(prisma.repository.findUnique).toHaveBeenCalledWith({
       where: { id: "repo-123" },
     });
     expect(prisma.pullRequest.upsert).toHaveBeenCalled();
     expect(prisma.reviewJob.upsert).toHaveBeenCalled();
-    expect(runBugReviewAgent).toHaveBeenCalled();
+    expect(runReviewOrchestrator).toHaveBeenCalled();
     expect(prisma.$transaction).toHaveBeenCalled();
   });
 
@@ -145,4 +170,3 @@ describe("Review Job Processor - End to End Slice", () => {
     await expect(processReviewJob(mockJob)).rejects.toThrow("Repository repo-unknown not found");
   });
 });
-

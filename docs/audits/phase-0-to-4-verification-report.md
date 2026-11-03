@@ -140,3 +140,4 @@ The following upcoming phases remain according to the project roadmap:
   - Task 7.2: Benchmark Evaluation Suite (runs against the 5 benchmark PR fixtures to measure precision, recall, and false-positive rates).
 - **Phase 8: Post-MVP Fix Proposal Agent**
   - Sandboxed automated patch generation.
+
