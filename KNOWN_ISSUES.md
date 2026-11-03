@@ -21,3 +21,4 @@ This document records architectural boundaries, current operational limits, and 
 
 ## 5. Model Provider Latency & Quotas
 - While provider circuit-breaking and fallback routing are in place, LLM inference latency scales with prompt size and provider load. BullMQ queue workers should be scaled horizontally to maintain job intake SLA during peak development hours.
+

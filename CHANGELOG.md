@@ -77,3 +77,4 @@ All notable changes and architectural decisions for the **RepoPilot / Agentic Co
 ## [Phase 0] - 2026-11-02
 ### Added
 - **Product Definition & Test PR Fixtures**: Standardized ground-truth fixtures (`bug-prs`, `security-prs`, `clean-prs`), `expected-findings.json`, and GitHub App permissions specification.
+
