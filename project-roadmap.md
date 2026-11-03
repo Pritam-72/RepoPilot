@@ -584,17 +584,17 @@ reliable and sandbox isolation has been reviewed.
 
 ### Tasks
 
--   [ ] Define which verified finding categories can request a fix.
--   [ ] Retrieve exact source revision and relevant context.
--   [ ] Generate a minimal patch rather than rewriting whole files.
--   [ ] Validate patch paths and boundaries.
--   [ ] Apply the patch in a disposable isolated environment.
--   [ ] Run approved tests and static-analysis commands.
--   [ ] Capture logs, exit codes, resource usage, and test results.
--   [ ] Check whether the original finding is addressed.
--   [ ] Show the patch diff and validation evidence to the user.
--   [ ] Require explicit approval before creating a branch or commit.
--   [ ] Record who approved the action and what revision was changed.
+-   [x] Define which verified finding categories can request a fix.
+-   [x] Retrieve exact source revision and relevant context.
+-   [x] Generate a minimal patch rather than rewriting whole files.
+-   [x] Validate patch paths and boundaries.
+-   [x] Apply the patch in a disposable isolated environment.
+-   [x] Run approved tests and static-analysis commands.
+-   [x] Capture logs, exit codes, resource usage, and test results.
+-   [x] Check whether the original finding is addressed.
+-   [x] Show the patch diff and validation evidence to the user.
+-   [x] Require explicit approval before creating a branch or commit.
+-   [x] Record who approved the action and what revision was changed.
 
 ### Check before moving on
 

@@ -4,3 +4,4 @@ export * from "./security-agent.js";
 export * from "./quality-agent.js";
 export * from "./orchestrator.js";
 export * from "./verification-service.js";
+export * from "./fix-agent.js";

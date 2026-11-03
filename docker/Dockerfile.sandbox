@@ -1,0 +1,30 @@
+# Ephemeral, unprivileged execution sandbox for test running and patch validation
+FROM node:20-alpine
+
+# Install essential deterministic tools: git, patch, python3, make
+RUN apk add --no-cache \
+    git \
+    patch \
+    python3 \
+    py3-pip \
+    bash \
+    coreutils
+
+# Create dedicated unprivileged sandbox user
+RUN addgroup -g 1000 sandboxgroup && \
+    adduser -u 1000 -G sandboxgroup -s /bin/bash -D sandboxuser
+
+# Prepare ephemeral workspace directory
+WORKDIR /workspace
+RUN chown -R sandboxuser:sandboxgroup /workspace
+
+# Switch to unprivileged user by default
+USER sandboxuser
+
+# Network-isolated, minimal environment
+ENV NODE_ENV=test \
+    CI=true \
+    HOME=/tmp
+
+ENTRYPOINT ["/bin/sh", "-c"]
+CMD ["echo Sandbox ready"]

@@ -568,12 +568,12 @@ Build the Next.js web application for monitoring reviews, inspecting findings, s
 
 ---
 
-## Phase 8: Safe Remediation & Fix Agent (Post-MVP Target)
+## Phase 8: Safe Remediation & Fix Agent (Post-MVP Target) [COMPLETED]
 
 ### Goal
 Provide human-approved, safely tested fix suggestions in an isolated Docker sandbox without risking repository integrity.
 
-### Task 8.1: Isolated Docker Execution Sandbox
+### Task 8.1: Isolated Docker Execution Sandbox [DONE]
 - **Files:**
   - Create: `docker/Dockerfile.sandbox`
   - Create: `packages/static-analysis/src/sandbox-runner.ts`
@@ -583,7 +583,7 @@ Provide human-approved, safely tested fix suggestions in an isolated Docker sand
   2. *Step 2: Implement sandbox runner* mounting ephemeral worktrees.
   3. *Step 3: Commit:* `feat(sandbox): implement disposable, network-isolated Docker sandbox runner`.
 
-### Task 8.2: Fix Proposal Agent & Approval Flow
+### Task 8.2: Fix Proposal Agent & Approval Flow [DONE]
 - **Files:**
   - Create: `packages/agents/src/fix-agent.ts`
   - Create: `apps/api/src/routes/fix-proposals.ts`

@@ -29,6 +29,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@acr/agents':
+        specifier: workspace:*
+        version: link:../../packages/agents
       '@acr/database':
         specifier: workspace:*
         version: link:../../packages/database
@@ -170,6 +173,9 @@ importers:
       '@acr/review-contracts':
         specifier: workspace:*
         version: link:../review-contracts
+      '@acr/static-analysis':
+        specifier: workspace:*
+        version: link:../static-analysis
       '@ai-sdk/google':
         specifier: ^1.0.0
         version: 1.2.22(zod@3.25.76)

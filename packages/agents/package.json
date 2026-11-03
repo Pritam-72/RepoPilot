@@ -13,6 +13,7 @@
     "@acr/observability": "workspace:*",
     "@acr/github": "workspace:*",
     "@acr/review-contracts": "workspace:*",
+    "@acr/static-analysis": "workspace:*",
     "@ai-sdk/google": "^1.0.0",
     "ai": "^4.0.0",
     "zod": "^3.23.0"
