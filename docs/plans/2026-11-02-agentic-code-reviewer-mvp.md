@@ -597,6 +597,26 @@ Provide human-approved, safely tested fix suggestions in an isolated Docker sand
 
 ## 4. Verification Checklists & Quality Gates
 
+### Phase 9: Quality Improvement & Scaling [COMPLETED]
+- **Task 9.1: Specialized Performance & Dependency Review Agents [DONE]**
+  - AST & diff scanner for N+1 queries, unindexed queries, and resource leaks (`packages/agents/src/performance-agent.ts`).
+  - Supply-chain vulnerability & version pinning agent for manifests (`packages/agents/src/dependency-agent.ts`).
+  - Unit tests: `packages/agents/src/__tests__/performance-agent.test.ts` & `dependency-agent.test.ts`.
+- **Task 9.2: Intelligent Agent Routing & Provider Fallback [DONE]**
+  - Intelligent agent routing via `routeAgentsForChanges(changedFiles)` in `packages/agents/src/orchestrator.ts`.
+  - Multi-model routing, quota/timeout circuit breaking, and fallback provider in `packages/agents/src/llm-provider.ts`.
+  - Unit tests: `packages/agents/src/__tests__/llm-provider.test.ts`.
+- **Task 9.3: Repository-Specific Rules & Conventions Engine [DONE]**
+  - Schema parsing & loading for `.repopilot.json` and `.acr.json` (`packages/repository-context/src/config-loader.ts`).
+  - Unit tests: `packages/repository-context/src/__tests__/config-loader.test.ts`.
+- **Task 9.4: Expanded Benchmark Suite with Performance & Dependency Fixtures [DONE]**
+  - Real fixtures: `tests/fixtures/performance-prs/n-plus-one-query.patch` & `tests/fixtures/dependency-prs/vulnerable-dep.patch`.
+  - Evaluated on all 7 fixtures: 100% precision, 0% FPR, 100% recall, 100% diff line accuracy, 0 crashes.
+- **Task 9.5: Per-Tenant Concurrency & Retention Workflows [DONE]**
+  - Multi-tenant concurrency token manager with configurable per-installation limits (`apps/worker/src/concurrency-limiter.ts`).
+  - Data retention cleanup (`cleanupOldData`) and tenant export (`exportTenantData`) in `apps/worker/src/retention-service.ts`.
+  - Unit tests: `apps/worker/src/__tests__/concurrency-retention.test.ts`.
+
 ### Pre-Commit Gate
 - [ ] TypeScript compilation (`tsc --noEmit`) passes with zero errors.
 - [ ] ESLint passes without warnings.

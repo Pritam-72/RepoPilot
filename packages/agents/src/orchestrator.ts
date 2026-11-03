@@ -1,17 +1,19 @@
 import { runBugReviewAgent } from "./bug-agent.js";
 import { runSecurityReviewAgent } from "./security-agent.js";
 import { runQualityReviewAgent } from "./quality-agent.js";
+import { runPerformanceReviewAgent } from "./performance-agent.js";
+import { runDependencyReviewAgent } from "./dependency-agent.js";
 import type { ReviewAgentInput, Finding } from "@acr/review-contracts";
 import type { LLMProviderOptions } from "./llm-provider.js";
 import { logger } from "@acr/observability";
 
-export type AgentType = "bug" | "security" | "quality";
+export type AgentType = "bug" | "security" | "quality" | "performance" | "dependency";
 
 export interface AgentExecutionResult {
   agentType: AgentType;
   status: "completed" | "failed";
   findings: Finding[];
-  error?: string;
+  error?: string | undefined;
   durationMs: number;
 }
 
@@ -24,7 +26,51 @@ export interface OrchestratedReviewResult {
 }
 
 export interface OrchestratorOptions extends LLMProviderOptions {
-  enabledAgents?: AgentType[];
+  enabledAgents?: AgentType[] | undefined;
+  useIntelligentRouting?: boolean | undefined;
+}
+
+export const MANIFEST_FILE_PATTERNS = [
+  /package\.json$/i,
+  /package-lock\.json$/i,
+  /pnpm-lock\.yaml$/i,
+  /yarn\.lock$/i,
+  /requirements\.txt$/i,
+  /pyproject\.toml$/i,
+  /poetry\.lock$/i,
+  /go\.mod$/i,
+  /go\.sum$/i,
+  /Cargo\.toml$/i,
+  /Cargo\.lock$/i,
+];
+
+/**
+ * Intelligent file-to-agent router that selects relevant agents based on changed file characteristics.
+ */
+export function routeAgentsForChanges(changedFiles: { path: string }[]): AgentType[] {
+  const selected = new Set<AgentType>();
+
+  const hasManifestChanges = changedFiles.some((f) =>
+    MANIFEST_FILE_PATTERNS.some((pat) => pat.test(f.path))
+  );
+
+  const hasCodeChanges = changedFiles.some(
+    (f) => !MANIFEST_FILE_PATTERNS.some((pat) => pat.test(f.path))
+  );
+
+  if (hasCodeChanges || changedFiles.length === 0) {
+    selected.add("bug");
+    selected.add("security");
+    selected.add("quality");
+    selected.add("performance");
+  }
+
+  if (hasManifestChanges) {
+    selected.add("dependency");
+    selected.add("security");
+  }
+
+  return Array.from(selected);
 }
 
 export async function runReviewOrchestrator(
@@ -32,7 +78,11 @@ export async function runReviewOrchestrator(
   opts: OrchestratorOptions = {}
 ): Promise<OrchestratedReviewResult> {
   const startTime = Date.now();
-  const enabledAgents = opts.enabledAgents ?? ["bug", "security", "quality"];
+  const enabledAgents: AgentType[] =
+    opts.enabledAgents ??
+    (opts.useIntelligentRouting
+      ? routeAgentsForChanges(input.changedFiles)
+      : ["bug", "security", "quality"]);
 
   logger.info(
     {
@@ -49,6 +99,8 @@ export async function runReviewOrchestrator(
     bug: runBugReviewAgent,
     security: runSecurityReviewAgent,
     quality: runQualityReviewAgent,
+    performance: runPerformanceReviewAgent,
+    dependency: runDependencyReviewAgent,
   };
 
   // Run enabled agents in parallel with fault isolation
@@ -121,4 +173,3 @@ export async function runReviewOrchestrator(
     durationMs: totalDurationMs,
   };
 }
-

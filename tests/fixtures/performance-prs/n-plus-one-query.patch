@@ -1,0 +1,14 @@
+diff --git a/src/users.ts b/src/users.ts
+index 1000000..2000000 100644
+--- a/src/users.ts
++++ b/src/users.ts
+@@ -1,5 +1,8 @@
+ export async function getUserOrders(userIds: string[], db: any) {
+-  return [];
++  const results = [];
++  for (const id of userIds) {
++    const order = await db.query(`SELECT * FROM orders WHERE user_id = ?`, [id]);
++    results.push(order);
++  }
++  return results;
+ }

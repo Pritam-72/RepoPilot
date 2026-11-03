@@ -112,10 +112,10 @@ describe("Benchmark Evaluation Harness & Pilot Gate (Task 7.3)", () => {
     expect(report).toContain("False Positive Rate");
   });
 
-  it("executes automated benchmark harness across all 5 MVP PR fixtures and satisfies gate", async () => {
+  it("executes automated benchmark harness across all PR fixtures and satisfies gate", async () => {
     const metrics = await runBenchmark();
 
-    expect(metrics.totalFixtures).toBe(5);
+    expect(metrics.totalFixtures).toBe(7);
     expect(metrics.crashes).toBe(0);
     expect(metrics.precision).toBeGreaterThanOrEqual(0.85);
     expect(metrics.falsePositiveRate).toBeLessThanOrEqual(0.15);

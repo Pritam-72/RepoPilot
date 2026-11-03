@@ -1,0 +1,13 @@
+diff --git a/package.json b/package.json
+index 1000000..2000000 100644
+--- a/package.json
++++ b/package.json
+@@ -1,5 +1,6 @@
+ {
+   "name": "sample-app",
+   "dependencies": {
+-    "lodash": "^4.17.21"
++    "lodash": "*",
++    "event-stream": "3.3.6"
+   }
+ }

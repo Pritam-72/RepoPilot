@@ -24,6 +24,18 @@
     ]
   },
   {
+    "fixture": "performance-prs/n-plus-one-query.patch",
+    "expectedFindings": [
+      { "file": "src/users.ts", "line": 4, "category": "performance", "severity": "high", "ruleId": "n-plus-one-query" }
+    ]
+  },
+  {
+    "fixture": "dependency-prs/vulnerable-dep.patch",
+    "expectedFindings": [
+      { "file": "package.json", "line": 5, "category": "dependency", "severity": "critical", "ruleId": "vulnerable-dependency-pin" }
+    ]
+  },
+  {
     "fixture": "clean-prs/refactor-clean.patch",
     "expectedFindings": []
   }

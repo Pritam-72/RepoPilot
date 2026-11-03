@@ -13,10 +13,20 @@ vi.mock("../quality-agent.js", () => ({
   runQualityReviewAgent: vi.fn(),
 }));
 
+vi.mock("../performance-agent.js", () => ({
+  runPerformanceReviewAgent: vi.fn(),
+}));
+
+vi.mock("../dependency-agent.js", () => ({
+  runDependencyReviewAgent: vi.fn(),
+}));
+
 const { runBugReviewAgent } = await import("../bug-agent.js");
 const { runSecurityReviewAgent } = await import("../security-agent.js");
 const { runQualityReviewAgent } = await import("../quality-agent.js");
-const { runReviewOrchestrator } = await import("../orchestrator.js");
+const { runPerformanceReviewAgent } = await import("../performance-agent.js");
+const { runDependencyReviewAgent } = await import("../dependency-agent.js");
+const { runReviewOrchestrator, routeAgentsForChanges } = await import("../orchestrator.js");
 
 const dummyInput: ReviewAgentInput = {
   repository: { owner: "acme", name: "app", repositoryId: 1 },
@@ -140,6 +150,20 @@ describe("runReviewOrchestrator", () => {
     expect(runSecurityReviewAgent).toHaveBeenCalledOnce();
     expect(runBugReviewAgent).not.toHaveBeenCalled();
     expect(runQualityReviewAgent).not.toHaveBeenCalled();
+  });
+
+  it("routes manifest changes to dependency and security agents", () => {
+    const agents = routeAgentsForChanges([{ path: "package.json" }]);
+    expect(agents).toContain("dependency");
+    expect(agents).toContain("security");
+  });
+
+  it("routes code changes to bug, security, quality, and performance agents", () => {
+    const agents = routeAgentsForChanges([{ path: "src/algo.ts" }]);
+    expect(agents).toContain("bug");
+    expect(agents).toContain("security");
+    expect(agents).toContain("quality");
+    expect(agents).toContain("performance");
   });
 });
 

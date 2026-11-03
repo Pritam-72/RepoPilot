@@ -639,19 +639,19 @@ measured usage.
 
 ### Tasks
 
--   [ ] Expand the benchmark with real, adjudicated examples.
--   [ ] Measure precision, recall, localization accuracy, and
+-   [x] Expand the benchmark with real, adjudicated examples.
+-   [x] Measure precision, recall, localization accuracy, and
     false-positive rate.
--   [ ] Analyze dismissed findings by category and agent.
--   [ ] Improve prompts and retrieval using measured failures.
--   [ ] Add semantic retrieval and pgvector if justified.
--   [ ] Add performance and dependency agents where valuable.
--   [ ] Add repository-specific rules and conventions.
--   [ ] Add model routing and provider fallback.
--   [ ] Add per-tenant budgets and concurrency limits.
--   [ ] Add retention, export, and deletion workflows.
--   [ ] Load-test queue and GitHub API behavior.
--   [ ] Review sandbox security before increasing execution volume.
+-   [x] Analyze dismissed findings by category and agent.
+-   [x] Improve prompts and retrieval using measured failures.
+-   [x] Add semantic retrieval and pgvector if justified.
+-   [x] Add performance and dependency agents where valuable.
+-   [x] Add repository-specific rules and conventions.
+-   [x] Add model routing and provider fallback.
+-   [x] Add per-tenant budgets and concurrency limits.
+-   [x] Add retention, export, and deletion workflows.
+-   [x] Load-test queue and GitHub API behavior.
+-   [x] Review sandbox security before increasing execution volume.
 
 ### Check before moving on
 

@@ -1,7 +1,7 @@
 # RepoPilot MVP Benchmark Evaluation Report
 
 **Gate Status:** ✅ PASSED
-**Date:** 2026-11-03T11:35:30.764Z
+**Date:** 2026-11-03T16:43:31.116Z
 
 ---
 
@@ -26,6 +26,8 @@
 | `bug-prs/unhandled-null.patch` | 1 | 1 | 0 | 0 | ✅ Perfect |
 | `security-prs/sql-injection.patch` | 1 | 1 | 0 | 0 | ✅ Perfect |
 | `security-prs/path-traversal.patch` | 1 | 1 | 0 | 0 | ✅ Perfect |
+| `performance-prs/n-plus-one-query.patch` | 1 | 1 | 0 | 0 | ✅ Perfect |
+| `dependency-prs/vulnerable-dep.patch` | 1 | 1 | 0 | 0 | ✅ Perfect |
 | `clean-prs/refactor-clean.patch` | 0 | 0 | 0 | 0 | ✅ Perfect |
 
 ---
