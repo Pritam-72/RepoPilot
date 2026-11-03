@@ -1,5 +1,5 @@
 import React from "react";
-import { RepoCard } from "../../components/repo-card.js";
+import { RepoCard } from "../../components/repo-card";
 
 export const sampleRepositories = [
   {

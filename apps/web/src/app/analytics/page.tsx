@@ -1,5 +1,5 @@
 import React from "react";
-import { Nav } from "../../components/nav.js";
+import { Nav } from "../../components/nav";
 
 export interface AnalyticsData {
   metrics: {

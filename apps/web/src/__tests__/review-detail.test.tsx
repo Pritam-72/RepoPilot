@@ -1,10 +1,10 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import ReviewDetailPage from "../app/reviews/[id]/page.js";
-import { FindingCard } from "../components/finding-card.js";
-import { DiffViewer } from "../components/diff-viewer.js";
-import { FeedbackButton } from "../components/feedback-button.js";
+import ReviewDetailPage from "../app/reviews/[id]/page";
+import { FindingCard } from "../components/finding-card";
+import { DiffViewer } from "../components/diff-viewer";
+import { FeedbackButton } from "../components/feedback-button";
 
 describe("Review Detail & Finding Feedback (Task 7.2)", () => {
   it("renders diff viewer with syntax lines", () => {

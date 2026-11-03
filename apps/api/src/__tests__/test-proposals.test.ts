@@ -79,3 +79,4 @@ describe("Test Proposals API (/api/v1/test-proposals)", () => {
     expect(res.status).toBe(404);
   });
 });
+

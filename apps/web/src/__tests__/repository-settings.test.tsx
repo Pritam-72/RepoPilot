@@ -1,7 +1,7 @@
 import React from "react";
 import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import RepositorySettingsPage from "../app/repositories/[id]/settings/page.js";
+import RepositorySettingsPage from "../app/repositories/[id]/settings/page";
 
 describe("Repository Settings Page (Task 7.1 / FR-21)", () => {
   it("renders settings form with automation toggles and confidence slider", () => {

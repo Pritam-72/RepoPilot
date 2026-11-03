@@ -1,6 +1,6 @@
 import React from "react";
-import { DiffViewer } from "./diff-viewer.js";
-import { FeedbackButton } from "./feedback-button.js";
+import { DiffViewer } from "./diff-viewer";
+import { FeedbackButton } from "./feedback-button";
 import type { Finding } from "@acr/review-contracts";
 
 export interface FindingCardProps {

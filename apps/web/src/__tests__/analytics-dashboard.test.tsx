@@ -1,7 +1,7 @@
 import React from "react";
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import AnalyticsPage from "../app/analytics/page.js";
+import AnalyticsPage from "../app/analytics/page";
 
 describe("Analytics Page (FR-22)", () => {
   it("renders organization analytics header and KPI cards", () => {

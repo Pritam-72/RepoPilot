@@ -14,3 +14,4 @@ export const TestProposalSchema = z.object({
 });
 
 export type TestProposal = z.infer<typeof TestProposalSchema>;
+

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { FindingCard } from "../../../components/finding-card.js";
-import { DiffViewer } from "../../../components/diff-viewer.js";
+import { FindingCard } from "../../../components/finding-card";
+import { DiffViewer } from "../../../components/diff-viewer";
 import type { Finding } from "@acr/review-contracts";
 
 export interface ReviewDetailProps {

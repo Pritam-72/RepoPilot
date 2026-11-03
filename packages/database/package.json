@@ -8,7 +8,7 @@
     ".": { "import": "./dist/index.js", "types": "./dist/index.d.ts" }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node -e \"const fs=require('fs'); try { fs.cpSync('src/generated', 'dist/generated', {recursive:true, errorOnExist:false}); } catch(e){ if(!['EPERM','EBUSY'].includes(e.code)) throw e; }\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "db:generate": "prisma generate",

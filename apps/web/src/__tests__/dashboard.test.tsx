@@ -1,9 +1,9 @@
 import React from "react";
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import DashboardPage from "../app/page.js";
-import RepositoriesPage from "../app/repositories/page.js";
-import { Nav } from "../components/nav.js";
+import DashboardPage from "../app/page";
+import RepositoriesPage from "../app/repositories/page";
+import { Nav } from "../components/nav";
 
 describe("Web Dashboard (Task 7.1)", () => {
   it("renders global navigation bar with links and status", () => {

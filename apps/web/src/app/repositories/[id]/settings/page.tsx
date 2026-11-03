@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Nav } from "../../../../components/nav.js";
+import { Nav } from "../../../../components/nav";
 
 export interface RepositorySettingsPageProps {
   params: {

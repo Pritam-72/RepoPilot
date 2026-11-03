@@ -81,3 +81,4 @@ describe("paginate regression test", () => {
     expect(proposal.explanation).toContain("Deterministic regression test");
   });
 });
+
