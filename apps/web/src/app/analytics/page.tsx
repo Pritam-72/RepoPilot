@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { Nav } from "../../components/nav";
 
 export interface AnalyticsData {
@@ -26,45 +28,63 @@ export interface AnalyticsData {
   };
 }
 
-const DEFAULT_ANALYTICS: AnalyticsData = {
+export const DEFAULT_ANALYTICS: AnalyticsData = {
   metrics: {
     reviews: {
-      total: 128,
-      completed: 125,
-      failed: 3,
-      successRate: 97.7,
-      meanDurationSec: 3.8,
+      total: 1,
+      completed: 1,
+      failed: 0,
+      successRate: 100,
+      meanDurationSec: 14.2,
     },
     findings: {
-      total: 312,
-      verified: 298,
-      verificationRate: 95.5,
+      total: 1,
+      verified: 1,
+      verificationRate: 100,
       bySeverity: {
-        critical: 18,
-        high: 64,
-        medium: 142,
-        low: 76,
-        informational: 12,
+        critical: 0,
+        high: 1,
+        medium: 0,
+        low: 0,
+        informational: 0,
       },
       byCategory: {
-        correctness: 110,
-        security: 82,
-        performance: 48,
-        quality: 42,
-        dependency: 30,
+        correctness: 1,
+        security: 0,
+        performance: 0,
+        quality: 0,
+        dependency: 0,
       },
     },
     feedback: {
-      useful: 94,
-      incorrect: 4,
-      dismissed: 8,
-      acceptanceRate: 88.7,
+      useful: 1,
+      incorrect: 0,
+      dismissed: 0,
+      acceptanceRate: 100,
     },
   },
 };
 
 export default function AnalyticsPage() {
-  const data = DEFAULT_ANALYTICS;
+  const [data, setData] = useState<AnalyticsData>(DEFAULT_ANALYTICS);
+
+  useEffect(() => {
+    async function fetchAnalytics() {
+      try {
+        const res = await fetch("http://localhost:3000/api/v1/analytics/overview");
+        if (res.ok) {
+          const liveData = await res.json();
+          if (liveData?.metrics) {
+            setData(liveData);
+          }
+        }
+      } catch {
+        // Fallback to initial state
+      }
+    }
+    fetchAnalytics();
+  }, []);
+
   const { reviews, findings, feedback } = data.metrics;
 
   return (
@@ -120,38 +140,37 @@ export default function AnalyticsPage() {
               {feedback.acceptanceRate}%
             </div>
             <span style={{ fontSize: "0.75rem", color: "#16a34a", fontWeight: 500 }}>
-              {feedback.useful} positive developer votes
+              {feedback.useful} positive ratings
             </span>
           </div>
         </div>
 
-        {/* Breakdown Grids */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: "1.5rem" }}>
+        {/* Severity & Category Breakdown */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
           {/* Findings by Severity */}
           <div style={{ background: "#ffffff", padding: "1.5rem", borderRadius: "0.5rem", border: "1px solid #e5e7eb" }}>
-            <h2 style={{ fontSize: "1.125rem", fontWeight: 600, color: "#111827", marginBottom: "1rem" }}>
+            <h2 style={{ fontSize: "1.125rem", fontWeight: 600, color: "#111827", margin: "0 0 1rem 0" }}>
               Findings by Severity
             </h2>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              {Object.entries(findings.bySeverity).map(([severity, count]) => {
-                const total = findings.total || 1;
+              {Object.entries(findings.bySeverity).map(([sev, count]) => {
+                const total = Math.max(1, findings.total);
                 const pct = Math.round((count / total) * 100);
                 return (
-                  <div key={severity}>
+                  <div key={sev}>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.875rem", marginBottom: "0.25rem" }}>
-                      <span style={{ textTransform: "capitalize", fontWeight: 500, color: "#374151" }}>{severity}</span>
+                      <span style={{ textTransform: "capitalize", fontWeight: 500, color: "#374151" }}>{sev}</span>
                       <span style={{ color: "#6b7280" }}>{count} ({pct}%)</span>
                     </div>
-                    <div style={{ width: "100%", height: "0.5rem", background: "#f3f4f6", borderRadius: "9999px", overflow: "hidden" }}>
+                    <div style={{ height: "0.5rem", background: "#f3f4f6", borderRadius: "9999px", overflow: "hidden" }}>
                       <div
                         style={{
-                          width: `${pct}%`,
                           height: "100%",
+                          width: `${pct}%`,
                           background:
-                            severity === "critical" ? "#dc2626" :
-                            severity === "high" ? "#ea580c" :
-                            severity === "medium" ? "#d97706" :
-                            severity === "low" ? "#2563eb" : "#6b7280",
+                            sev === "critical" ? "#dc2626" :
+                            sev === "high" ? "#ea580c" :
+                            sev === "medium" ? "#f59e0b" : "#3b82f6",
                         }}
                       />
                     </div>
@@ -163,21 +182,27 @@ export default function AnalyticsPage() {
 
           {/* Findings by Category */}
           <div style={{ background: "#ffffff", padding: "1.5rem", borderRadius: "0.5rem", border: "1px solid #e5e7eb" }}>
-            <h2 style={{ fontSize: "1.125rem", fontWeight: 600, color: "#111827", marginBottom: "1rem" }}>
+            <h2 style={{ fontSize: "1.125rem", fontWeight: 600, color: "#111827", margin: "0 0 1rem 0" }}>
               Findings by Agent Category
             </h2>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              {Object.entries(findings.byCategory).map(([category, count]) => {
-                const total = findings.total || 1;
+              {Object.entries(findings.byCategory).map(([cat, count]) => {
+                const total = Math.max(1, findings.total);
                 const pct = Math.round((count / total) * 100);
                 return (
-                  <div key={category}>
+                  <div key={cat}>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.875rem", marginBottom: "0.25rem" }}>
-                      <span style={{ textTransform: "capitalize", fontWeight: 500, color: "#374151" }}>{category}</span>
+                      <span style={{ textTransform: "capitalize", fontWeight: 500, color: "#374151" }}>{cat}</span>
                       <span style={{ color: "#6b7280" }}>{count} ({pct}%)</span>
                     </div>
-                    <div style={{ width: "100%", height: "0.5rem", background: "#f3f4f6", borderRadius: "9999px", overflow: "hidden" }}>
-                      <div style={{ width: `${pct}%`, height: "100%", background: "#4f46e5" }} />
+                    <div style={{ height: "0.5rem", background: "#f3f4f6", borderRadius: "9999px", overflow: "hidden" }}>
+                      <div
+                        style={{
+                          height: "100%",
+                          width: `${pct}%`,
+                          background: "#6366f1",
+                        }}
+                      />
                     </div>
                   </div>
                 );
@@ -189,4 +214,3 @@ export default function AnalyticsPage() {
     </div>
   );
 }
-

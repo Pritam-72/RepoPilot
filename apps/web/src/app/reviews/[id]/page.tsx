@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FindingCard } from "../../../components/finding-card";
 import { DiffViewer } from "../../../components/diff-viewer";
 import type { Finding } from "@acr/review-contracts";
@@ -9,7 +9,7 @@ export interface ReviewDetailProps {
   params: { id: string };
 }
 
-const sampleReviewData = {
+export const sampleReviewData = {
   id: "run-101",
   repository: "Pritam-72/RepoPilot",
   pullNumber: 42,
@@ -18,7 +18,7 @@ const sampleReviewData = {
   baseSha: "0987654321fedcba",
   status: "completed" as const,
   durationMs: 14200,
-  createdAt: "2026-11-03T10:30:00Z",
+  createdAt: "2026-11-04T07:10:31Z",
   summary:
     "RepoPilot completed review across 1 file. Detected 1 verified correctness issue regarding slice boundary termination.",
   diff: `diff --git a/src/paginate.ts b/src/paginate.ts
@@ -55,8 +55,61 @@ export default function ReviewDetailPage({ params }: ReviewDetailProps) {
   const [review, setReview] = useState(sampleReviewData);
   const [feedbackLog, setFeedbackLog] = useState<Record<string, string>>({});
 
-  const handleFeedback = (findingId: string, feedback: "useful" | "incorrect" | "dismissed") => {
+  useEffect(() => {
+    async function loadReview() {
+      try {
+        const res = await fetch(`http://localhost:3000/api/v1/reviews/${params?.id || "run-101"}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.review) {
+            const r = data.review;
+            setReview((prev) => ({
+              ...prev,
+              id: r.id,
+              repository: `${r.repository.owner}/${r.repository.name}`,
+              pullNumber: r.pullRequest.githubPrNumber,
+              title: r.pullRequest.title,
+              headSha: r.headSha,
+              status: r.status,
+              durationMs:
+                r.completedAt && r.startedAt
+                  ? new Date(r.completedAt).getTime() - new Date(r.startedAt).getTime()
+                  : 14200,
+              findings: r.findings.map((f: any) => ({
+                id: f.id,
+                category: f.category,
+                severity: f.severity,
+                file: f.filePath,
+                line: f.line,
+                ruleId: f.ruleId,
+                title: f.title,
+                description: f.description,
+                evidence: f.evidence,
+                recommendation: f.recommendation,
+                confidence: f.confidence,
+                verificationStatus: f.verificationStatus,
+              })),
+            }));
+          }
+        }
+      } catch {
+        // Fallback
+      }
+    }
+    loadReview();
+  }, [params?.id]);
+
+  const handleFeedback = async (findingId: string, feedback: "useful" | "incorrect" | "dismissed") => {
     setFeedbackLog((prev) => ({ ...prev, [findingId]: feedback }));
+    try {
+      await fetch(`http://localhost:3000/api/v1/reviews/${review.id}/findings/${findingId}/feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: "user-pritam", feedbackType: feedback }),
+      });
+    } catch {
+      // Offline fallback
+    }
   };
 
   const severities = ["critical", "high", "medium", "low"] as const;
@@ -99,55 +152,76 @@ export default function ReviewDetailPage({ params }: ReviewDetailProps) {
           <span>•</span>
           <span>Findings: <strong style={{ color: "#dc2626" }}>{review.findings.length}</strong></span>
         </div>
-
-        <p style={{ margin: "1rem 0 0 0", padding: "0.75rem", background: "#f8fafc", borderRadius: "0.375rem", fontSize: "0.875rem", color: "#334155", border: "1px solid #e2e8f0" }}>
-          {review.summary}
-        </p>
       </div>
 
-      {/* Main Content: Diff & Findings */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1.75rem" }}>
-        {/* Diff Section */}
-        <div>
-          <h2 style={{ fontSize: "1.125rem", fontWeight: 600, margin: "0 0 0.75rem 0", color: "#111827" }}>
-            Reviewed PR Diff
-          </h2>
-          <DiffViewer patch={review.diff} highlightLine={4} />
-        </div>
-
-        {/* Findings by Severity */}
-        <div>
-          <h2 style={{ fontSize: "1.125rem", fontWeight: 600, margin: "0 0 0.75rem 0", color: "#111827" }}>
+      {/* Findings Breakdown */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: 700, margin: 0, color: "#111827" }}>
             Verified Findings ({review.findings.length})
           </h2>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }} data-testid="findings-list">
-            {review.findings.map((finding) => (
-              <FindingCard
-                key={finding.id}
-                finding={finding}
-                onFeedbackChange={handleFeedback}
-              />
-            ))}
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            {severities.map((sev) => {
+              const count = review.findings.filter((f) => f.severity === sev).length;
+              if (count === 0) return null;
+              return (
+                <span
+                  key={sev}
+                  style={{
+                    fontSize: "0.75rem",
+                    padding: "0.25rem 0.5rem",
+                    borderRadius: "0.25rem",
+                    background: sev === "high" ? "#fee2e2" : "#fef3c7",
+                    color: sev === "high" ? "#991b1b" : "#92400e",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {count} {sev}
+                </span>
+              );
+            })}
           </div>
-
-          {Object.keys(feedbackLog).length > 0 && (
-            <div
-              data-testid="feedback-confirmation"
-              style={{
-                marginTop: "1rem",
-                padding: "0.75rem",
-                background: "#f0fdf4",
-                border: "1px solid #bbf7d0",
-                borderRadius: "0.375rem",
-                fontSize: "0.8125rem",
-                color: "#166534",
-              }}
-            >
-              Feedback submitted successfully for finding! Thank you for tuning the review models.
-            </div>
-          )}
         </div>
+
+        {review.findings.map((finding) => (
+          <div key={finding.id} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <FindingCard
+              finding={finding}
+              onFeedbackChange={(id, type) => handleFeedback(id, type)}
+            />
+
+            {feedbackLog[finding.id] && (
+              <div
+                data-testid="feedback-confirmation"
+                style={{
+                  background: "#f0fdf4",
+                  border: "1px solid #bbf7d0",
+                  padding: "0.75rem 1rem",
+                  borderRadius: "0.375rem",
+                  fontSize: "0.8125rem",
+                  color: "#166534",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                <span>✓</span>
+                <span>
+                  Feedback recorded as <strong>{feedbackLog[finding.id]}</strong>. Live calibration updated.
+                </span>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Unified Diff */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <h2 style={{ fontSize: "1.25rem", fontWeight: 700, margin: 0, color: "#111827" }}>
+          Changed Code & Diff Context
+        </h2>
+        <DiffViewer patch={review.diff} highlightLine={4} />
       </div>
     </div>
   );

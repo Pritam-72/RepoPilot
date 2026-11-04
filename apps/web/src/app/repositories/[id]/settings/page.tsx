@@ -35,8 +35,25 @@ export default function RepositorySettingsPage({ params }: RepositorySettingsPag
     setAgents((prev) => ({ ...prev, [category]: !prev[category] }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setSaved(true);
+    try {
+      await fetch(`http://localhost:3000/api/v1/repositories/${repoId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          isEnabled,
+          reviewConfig: {
+            confidenceThreshold: minConfidence,
+            automatedPublishing,
+            agents,
+            conventions,
+          },
+        }),
+      });
+    } catch {
+      // Fallback
+    }
     setTimeout(() => setSaved(false), 3000);
   };
 

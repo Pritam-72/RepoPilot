@@ -1,3 +1,7 @@
+if (!process.env["DATABASE_URL"]) {
+  process.env["DATABASE_URL"] = "postgresql://postgres:pritam@localhost:5432/repopilot?schema=public";
+}
+
 import { PrismaClient } from "./generated/client/index.js";
 
 // Singleton pattern — safe for module-level use in workers and API

@@ -17,8 +17,56 @@ export function createReviewRouter(): Router {
     return Array.isArray(val) ? val[0] : val;
   }
 
-  // GET /api/v1/reviews/:id - Get review job details with findings and agent runs
-  router.get("/:id", async (req: Request, res: Response) => {
+  // GET /api/v1/reviews - List recent review jobs for the dashboard
+  router.get(["/reviews", "/"], async (req: Request, res: Response) => {
+    try {
+      const installationId = getTenantInstallationId(req);
+      const where = installationId ? { repository: { installationId } } : {};
+
+      const reviews = await prisma.reviewJob.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        take: 20,
+        include: {
+          repository: {
+            select: { id: true, owner: true, name: true },
+          },
+          pullRequest: {
+            select: { id: true, githubPrNumber: true, title: true, headSha: true },
+          },
+          findings: {
+            select: { id: true, severity: true, verificationStatus: true },
+          },
+        },
+      });
+
+      const formatted = reviews.map((r) => {
+        const verifiedFindings = r.findings.filter((f) => f.verificationStatus === "verified");
+        const criticalCount = verifiedFindings.filter((f) => f.severity === "critical").length;
+        const durationMs = r.completedAt && r.startedAt ? r.completedAt.getTime() - r.startedAt.getTime() : 0;
+
+        return {
+          id: r.id,
+          repository: `${r.repository.owner}/${r.repository.name}`,
+          pullNumber: r.pullRequest.githubPrNumber,
+          title: r.pullRequest.title,
+          status: r.status as "completed" | "analyzing" | "failed",
+          findingsCount: verifiedFindings.length,
+          criticalCount,
+          createdAt: r.createdAt.toISOString(),
+          durationMs,
+        };
+      });
+
+      res.json({ reviews: formatted });
+    } catch (error) {
+      logger.error({ error }, "Failed to list reviews");
+      res.status(500).json({ error: "Failed to list reviews" });
+    }
+  });
+
+  // GET /api/v1/reviews/:id (and alias /api/v1/:id) - Get review job details with findings and agent runs
+  router.get(["/reviews/:id", "/:id"], async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const installationId = getTenantInstallationId(req);
@@ -110,7 +158,7 @@ export function createReviewRouter(): Router {
           findingId: id,
           userId: user.id,
           feedbackType: parsed.data.feedbackType,
-          comment: parsed.data.comment,
+          comment: parsed.data.comment ?? null,
         },
       });
 

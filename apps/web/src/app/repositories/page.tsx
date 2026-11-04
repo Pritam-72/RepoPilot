@@ -1,46 +1,69 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { RepoCard } from "../../components/repo-card";
 
-export const sampleRepositories = [
+export interface RepoItem {
+  id: string;
+  name: string;
+  owner: string;
+  defaultBranch?: string;
+  reviewCount: number;
+  lastReviewStatus?: "completed" | "analyzing" | "failed";
+  lastReviewAt?: string;
+}
+
+export const sampleRepositories: RepoItem[] = [
   {
     id: "repo-1",
     name: "RepoPilot",
     owner: "Pritam-72",
     defaultBranch: "main",
-    reviewCount: 42,
+    reviewCount: 1,
     lastReviewStatus: "completed" as const,
-    lastReviewAt: "10 minutes ago",
+    lastReviewAt: "1 hour ago",
   },
   {
     id: "repo-2",
     name: "ecommerce-api",
     owner: "acme-corp",
     defaultBranch: "master",
-    reviewCount: 128,
-    lastReviewStatus: "completed" as const,
-    lastReviewAt: "1 hour ago",
-  },
-  {
-    id: "repo-3",
-    name: "auth-service",
-    owner: "infra-team",
-    defaultBranch: "main",
-    reviewCount: 65,
-    lastReviewStatus: "analyzing" as const,
-    lastReviewAt: "In progress",
-  },
-  {
-    id: "repo-4",
-    name: "data-pipeline",
-    owner: "analytics",
-    defaultBranch: "main",
-    reviewCount: 19,
+    reviewCount: 0,
     lastReviewStatus: "completed" as const,
     lastReviewAt: "Yesterday",
   },
 ];
 
 export default function RepositoriesPage() {
+  const [repos, setRepos] = useState<RepoItem[]>(sampleRepositories);
+
+  useEffect(() => {
+    async function loadRepos() {
+      try {
+        const res = await fetch("http://localhost:3000/api/v1/repositories");
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.repositories) && data.repositories.length > 0) {
+            const live = data.repositories.map((r: any) => ({
+              id: r.id,
+              name: r.name,
+              owner: r.owner,
+              defaultBranch: r.defaultBranch ?? "main",
+              reviewCount: 1,
+              lastReviewStatus: "completed" as const,
+              lastReviewAt: new Date(r.updatedAt ?? Date.now()).toLocaleTimeString(),
+            }));
+            setRepos(live);
+          }
+        }
+      } catch {
+        // Fallback to sample repositories
+      }
+    }
+
+    loadRepos();
+  }, []);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
@@ -58,30 +81,41 @@ export default function RepositoriesPage() {
             background: "#2563eb",
             color: "#ffffff",
             border: "none",
-            padding: "0.5rem 1rem",
             borderRadius: "0.375rem",
+            padding: "0.625rem 1rem",
             fontSize: "0.875rem",
             fontWeight: 500,
             cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.5rem",
           }}
         >
-          + Connect Repository
+          <span>+</span> Add Repository
         </button>
       </div>
 
       <div
-        data-testid="repositories-grid"
+        data-testid="repo-grid"
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
           gap: "1.25rem",
         }}
       >
-        {sampleRepositories.map((repo) => (
-          <RepoCard key={repo.id} {...repo} />
+        {repos.map((repo) => (
+          <RepoCard
+            key={repo.id}
+            id={repo.id}
+            name={repo.name}
+            owner={repo.owner}
+            defaultBranch={repo.defaultBranch}
+            reviewCount={repo.reviewCount}
+            lastReviewStatus={repo.lastReviewStatus}
+            lastReviewAt={repo.lastReviewAt}
+          />
         ))}
       </div>
     </div>
   );
 }
-

@@ -3,7 +3,7 @@ import { z } from "zod";
 export const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().default(3000),
-  DATABASE_URL: z.string().default("postgresql://acr:acr_secret@localhost:5432/code_reviewer"),
+  DATABASE_URL: z.string().default(process.env["DATABASE_URL"] ?? "postgresql://postgres:pritam@localhost:5432/repopilot?schema=public"),
   REDIS_URL: z.string().default("redis://localhost:6379"),
   GITHUB_APP_ID: z.string().default("development-app-id"),
   GITHUB_PRIVATE_KEY: z.string().default("development-private-key"),
