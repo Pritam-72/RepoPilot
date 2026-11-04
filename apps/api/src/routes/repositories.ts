@@ -97,8 +97,8 @@ export function createRepositoryRouter(): Router {
     }
   });
 
-  // PATCH /api/v1/repositories/:id/settings - Update repository review settings
-  router.patch("/:id/settings", async (req: Request, res: Response) => {
+  // PATCH /api/v1/repositories/:id/settings and /api/v1/repositories/:id
+  router.patch(["/:id/settings", "/:id"], async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const installationId = getTenantInstallationId(req);

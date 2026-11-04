@@ -74,17 +74,30 @@ export function RepoCard({
 
       <div style={{ marginTop: "0.5rem", paddingTop: "0.75rem", borderTop: "1px solid #f3f4f6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: "0.75rem", color: "#9ca3af" }}>Last review: {lastReviewAt}</span>
-        <a
-          href={`/repositories/${owner}/${name}`}
-          style={{
-            fontSize: "0.875rem",
-            color: "#2563eb",
-            fontWeight: 500,
-            textDecoration: "none",
-          }}
-        >
-          View Reviews →
-        </a>
+        <div style={{ display: "flex", gap: "0.75rem" }}>
+          <a
+            href={`/reviews`}
+            style={{
+              fontSize: "0.8125rem",
+              color: "#4b5563",
+              fontWeight: 500,
+              textDecoration: "none",
+            }}
+          >
+            Reviews
+          </a>
+          <a
+            href={`/repositories/${id}/settings`}
+            style={{
+              fontSize: "0.8125rem",
+              color: "#2563eb",
+              fontWeight: 500,
+              textDecoration: "none",
+            }}
+          >
+            Settings →
+          </a>
+        </div>
       </div>
     </div>
   );

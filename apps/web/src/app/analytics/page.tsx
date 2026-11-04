@@ -88,11 +88,8 @@ export default function AnalyticsPage() {
   const { reviews, findings, feedback } = data.metrics;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f9fafb" }}>
-      <Nav activePath="/analytics" />
-
-      <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem 1.5rem" }}>
-        {/* Header */}
+    <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+      {/* Header */}
         <div style={{ marginBottom: "2rem" }}>
           <h1 style={{ fontSize: "1.875rem", fontWeight: 700, color: "#111827", margin: 0 }}>
             Organization Analytics & Quality
@@ -210,7 +207,6 @@ export default function AnalyticsPage() {
             </div>
           </div>
         </div>
-      </main>
     </div>
   );
 }

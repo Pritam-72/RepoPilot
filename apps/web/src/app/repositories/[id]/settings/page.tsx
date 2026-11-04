@@ -58,11 +58,8 @@ export default function RepositorySettingsPage({ params }: RepositorySettingsPag
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f9fafb" }}>
-      <Nav activePath="/repositories" />
-
-      <main style={{ maxWidth: "800px", margin: "0 auto", padding: "2rem 1.5rem" }}>
-        {/* Breadcrumb & Title */}
+    <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+      {/* Breadcrumb & Title */}
         <div style={{ marginBottom: "1.5rem" }}>
           <a
             href="/repositories"
@@ -257,7 +254,6 @@ export default function RepositorySettingsPage({ params }: RepositorySettingsPag
             </button>
           </div>
         </div>
-      </main>
     </div>
   );
 }

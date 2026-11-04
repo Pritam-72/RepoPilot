@@ -10,8 +10,8 @@ export function createAnalyticsRouter(): Router {
     return Array.isArray(val) ? val[0] : val;
   }
 
-  // GET /api/v1/analytics/overview - Organization & repository analytics
-  router.get("/overview", async (req: Request, res: Response) => {
+  // GET /api/v1/analytics/overview (and /api/v1/analytics) - Organization & repository analytics
+  router.get(["/overview", "/"], async (req: Request, res: Response) => {
     try {
       const installationId = getTenantInstallationId(req);
 
