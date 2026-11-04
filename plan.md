@@ -642,7 +642,7 @@ Also track: verifier rejection rate, duplicate rate, developer acceptance/dismis
 
 | Phase | Status | Completion criteria met | Notes / deviations |
 |---|---|---|---|
-| 0 Foundation | ☐ Not started | ☐ | |
+| 0 Foundation | ☑ Completed | ☑ | Monorepo bumped to v2.0.0, Docker Compose + Dockerfile created, .env.example aligned with Sec 6.3, healthz/readyz verified |
 | 1 GitHub + Ingestion | ☐ Not started | ☐ | |
 | 2 Diff + Context | ☐ Not started | ☐ | |
 | 3 Single-Agent Baseline | ☐ Not started | ☐ | |
@@ -653,7 +653,7 @@ Also track: verifier rejection rate, duplicate rate, developer acceptance/dismis
 | 8 Publishing + Feedback | ☐ Not started | ☐ | |
 | 9 Production Hardening | ☐ Not started | ☐ | |
 
-**Current phase:** 0 **Open questions:** _none_ **Baseline metrics:** _not yet measured_
+**Current phase:** 1 **Open questions:** _none_ **Baseline metrics:** _not yet measured_
 
 ---
 

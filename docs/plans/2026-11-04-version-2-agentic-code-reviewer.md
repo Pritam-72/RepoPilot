@@ -277,3 +277,4 @@
 2. Strictly follow the Red-Green-Refactor TDD cycle.
 3. Keep `pnpm test` passing at 100% at every single commit.
 4. Report line count deltas on significant simplifications per Section 12.
+

@@ -1,18 +1,24 @@
 {
   "name": "@acr/observability",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": { "import": "./dist/index.js", "default": "./dist/index.js", "types": "./dist/index.d.ts" }
+    ".": {
+      "import": "./dist/index.js",
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": { "pino": "^9.0.0" },
+  "dependencies": {
+    "pino": "^9.0.0"
+  },
   "devDependencies": {
     "typescript": "^5.5.0",
     "vitest": "^2.0.0",
@@ -20,4 +26,3 @@
     "pino": "^9.0.0"
   }
 }
-
