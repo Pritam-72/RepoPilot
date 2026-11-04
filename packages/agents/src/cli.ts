@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
 import { runGeneralistReview, type ReviewFileContext } from "./generalist-agent.js";
+import { runMultiAgentReview } from "./multi-agent-orchestrator.js";
 import { MockLLMProvider, getLLMProvider } from "./llm-provider.js";
 import { logger } from "@acr/observability";
 
@@ -11,6 +12,7 @@ export async function runReviewCli(argv: string[] = process.argv.slice(2)): Prom
   let patchPath = "";
   let contentPath = "";
   let providerName = process.env["LLM_DEFAULT_PROVIDER"] ?? "gemini";
+  let mode: "single" | "multi" = "single";
   let outputJsonOnly = false;
 
   for (let i = 0; i < argv.length; i++) {
@@ -27,6 +29,8 @@ export async function runReviewCli(argv: string[] = process.argv.slice(2)): Prom
       contentPath = argv[++i]!;
     } else if (arg === "--provider" && argv[i + 1]) {
       providerName = argv[++i]!;
+    } else if (arg === "--mode" && argv[i + 1]) {
+      mode = argv[++i] === "multi" ? "multi" : "single";
     } else if (arg === "--json") {
       outputJsonOnly = true;
     }
@@ -48,11 +52,41 @@ export async function runReviewCli(argv: string[] = process.argv.slice(2)): Prom
   }
 
   const provider = getLLMProvider(providerName);
+
+  if (mode === "multi") {
+    const multiResult = await runMultiAgentReview({ files }, { provider });
+    const output = {
+      repo: repo || "local-test",
+      pr: prNumber || 1,
+      mode: "multi-agent",
+      status: "completed",
+      findingsCount: multiResult.findings.length,
+      findings: multiResult.findings,
+      rejectedFindings: multiResult.rejectedFindings,
+      agentRuns: multiResult.agentRuns,
+      usage: multiResult.totalTokens,
+      durationMs: multiResult.totalDurationMs,
+    };
+
+    if (outputJsonOnly) {
+      console.log(JSON.stringify(output, null, 2));
+    } else {
+      console.log("\n--- AGENTIC CODE REVIEWER: MULTI-AGENT RUN ---");
+      console.log(`Repository: ${output.repo} | PR: #${output.pr}`);
+      console.log(`Mode: multi-agent (${multiResult.agentRuns.length} agents)`);
+      console.log(`Duration: ${output.durationMs}ms | Tokens: ${output.usage.totalTokens}`);
+      console.log(`Findings: ${output.findingsCount} verified | ${output.rejectedFindings.length} rejected\n`);
+      console.log(JSON.stringify(output.findings, null, 2));
+    }
+    return;
+  }
+
   const result = await runGeneralistReview(files, { provider });
 
   const output = {
     repo: repo || "local-test",
     pr: prNumber || 1,
+    mode: "single-agent",
     status: "completed",
     provider: result.provider,
     model: result.model,

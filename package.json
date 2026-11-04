@@ -14,7 +14,8 @@
     "dev": "turbo run dev --parallel",
     "review": "tsx packages/agents/src/cli.ts",
     "benchmark": "tsx benchmark/runner/index.ts",
-    "test:benchmark": "vitest run tests/evaluation/benchmark-phase3.test.ts"
+    "benchmark:multi": "tsx benchmark/runner/index.ts --multi",
+    "test:benchmark": "vitest run tests/evaluation/benchmark-phase3.test.ts tests/evaluation/benchmark-phase4.test.ts"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

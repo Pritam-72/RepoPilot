@@ -213,6 +213,7 @@ export class ClaudeProvider implements LLMProvider {
 export class MockLLMProvider implements LLMProvider {
   public readonly name = "mock";
   private cannedResponse: unknown;
+  private responseHandler?: ((prompt: string) => unknown) | undefined;
 
   constructor(cannedResponse?: unknown) {
     this.cannedResponse = cannedResponse ?? { findings: [], summary: "Default mock review complete" };
@@ -222,12 +223,17 @@ export class MockLLMProvider implements LLMProvider {
     this.cannedResponse = response;
   }
 
+  public setResponseHandler(handler: (prompt: string) => unknown): void {
+    this.responseHandler = handler;
+  }
+
   async generateStructured<T extends ZodType>(
     prompt: string,
     schema: T,
     _opts?: LLMProviderOptions
   ): Promise<LLMCallResult<z.infer<T>>> {
-    const parsed = schema.parse(this.cannedResponse);
+    const rawData = this.responseHandler ? this.responseHandler(prompt) : this.cannedResponse;
+    const parsed = schema.parse(rawData);
     return {
       output: parsed,
       model: "mock-model",

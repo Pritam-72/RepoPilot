@@ -1,0 +1,72 @@
+{
+  "mode": "multi",
+  "totalCases": 6,
+  "bugCases": 4,
+  "controlCases": 2,
+  "truePositives": 4,
+  "falsePositives": 0,
+  "falseNegatives": 0,
+  "precision": 1,
+  "recall": 1,
+  "falsePositiveRate": 0,
+  "cleanPrFalsePositives": 0,
+  "lineAccuracy": 1,
+  "totalTokens": 22000,
+  "durationMs": 6,
+  "agentContributions": [
+    {
+      "agent": "bug-reviewer",
+      "category": "bug",
+      "casesReviewed": 6,
+      "bugsDetected": 1,
+      "falsePositives": 0,
+      "tokensConsumed": 3700,
+      "durationMs": 3
+    },
+    {
+      "agent": "security-reviewer",
+      "category": "security",
+      "casesReviewed": 6,
+      "bugsDetected": 1,
+      "falsePositives": 0,
+      "tokensConsumed": 3731,
+      "durationMs": 2
+    },
+    {
+      "agent": "error-handling-reviewer",
+      "category": "error-handling",
+      "casesReviewed": 6,
+      "bugsDetected": 1,
+      "falsePositives": 0,
+      "tokensConsumed": 3652,
+      "durationMs": 1
+    },
+    {
+      "agent": "test-coverage-reviewer",
+      "category": "test",
+      "casesReviewed": 6,
+      "bugsDetected": 0,
+      "falsePositives": 0,
+      "tokensConsumed": 3532,
+      "durationMs": 1
+    },
+    {
+      "agent": "performance-reviewer",
+      "category": "performance",
+      "casesReviewed": 6,
+      "bugsDetected": 1,
+      "falsePositives": 0,
+      "tokensConsumed": 3707,
+      "durationMs": 1
+    },
+    {
+      "agent": "quality-reviewer",
+      "category": "quality",
+      "casesReviewed": 6,
+      "bugsDetected": 0,
+      "falsePositives": 0,
+      "tokensConsumed": 3678,
+      "durationMs": 1
+    }
+  ]
+}

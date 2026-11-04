@@ -1,4 +1,5 @@
 {
+  "mode": "single",
   "totalCases": 6,
   "bugCases": 4,
   "controlCases": 2,
@@ -11,5 +12,5 @@
   "cleanPrFalsePositives": 0,
   "lineAccuracy": 1,
   "totalTokens": 2284,
-  "durationMs": 4
+  "durationMs": 3
 }
