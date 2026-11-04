@@ -86,6 +86,45 @@ describe("Webhook idempotency", () => {
     expect(enqueueReview).not.toHaveBeenCalled();
   });
 
+  it("rejects missing signature with 401", async () => {
+    const app = makeApp({ webhookSecret: SECRET, upsertDelivery, enqueueReview });
+    const res = await request(app)
+      .post("/webhook")
+      .set("x-github-delivery", "delivery-no-sig")
+      .set("x-github-event", "pull_request")
+      .send(prPayload);
+
+    expect(res.status).toBe(401);
+    expect(enqueueReview).not.toHaveBeenCalled();
+  });
+
+  it("passes PR title and author to enqueueReview when provided in payload", async () => {
+    const enrichedPayload = {
+      ...prPayload,
+      pull_request: {
+        ...prPayload.pull_request,
+        title: "feat: add payment gateway",
+        user: { login: "alice-dev" },
+      },
+    };
+    const app = makeApp({ webhookSecret: SECRET, upsertDelivery, enqueueReview });
+    const res = await request(app)
+      .post("/webhook")
+      .set("x-hub-signature-256", sign(enrichedPayload))
+      .set("x-github-delivery", "delivery-005")
+      .set("x-github-event", "pull_request")
+      .send(enrichedPayload);
+
+    expect(res.status).toBe(200);
+    expect(enqueueReview).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "feat: add payment gateway",
+        author: "alice-dev",
+        prNumber: 42,
+      })
+    );
+  });
+
   it("skips non-pull_request events", async () => {
     const app = makeApp({ webhookSecret: SECRET, upsertDelivery, enqueueReview });
     const pushPayload = { ref: "refs/heads/main" };
@@ -116,4 +155,3 @@ describe("Webhook idempotency", () => {
     expect(enqueueReview).not.toHaveBeenCalled();
   });
 });
-

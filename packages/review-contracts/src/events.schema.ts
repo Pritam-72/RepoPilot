@@ -5,6 +5,8 @@ export const PullRequestWebhookPayloadSchema = z.object({
   action: z.string(),
   number: z.number(),
   pull_request: z.object({
+    title: z.string().optional(),
+    user: z.object({ login: z.string() }).optional(),
     head: z.object({ sha: z.string() }),
     base: z.object({ sha: z.string() }),
   }),

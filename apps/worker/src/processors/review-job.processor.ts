@@ -7,6 +7,7 @@ import {
   createInstallationOctokit,
   getPRMetadata,
   getChangedFiles,
+  getPRCommits,
   getChangedLineNumbers,
   publishPRReview,
 } from "@acr/github";
@@ -36,17 +37,33 @@ export async function processReviewJob(
   const { installationId, repositoryId, pullRequestNumber, headSha, reviewJobId } = payload;
 
   // 1. Get repository info from DB
-  const repo = await prisma.repository.findUnique({ where: { id: repositoryId } });
+  let repo = await prisma.repository.findUnique({ where: { id: repositoryId } });
+  if (!repo && !isNaN(Number(repositoryId))) {
+    repo = await prisma.repository.findFirst({
+      where: { githubRepositoryId: Number(repositoryId) },
+    });
+  }
   if (!repo) {
     throw new Error(`Repository ${repositoryId} not found`);
   }
 
-  // 2. Fetch PR metadata and changed files from GitHub
+  // 2. Fetch PR metadata, changed files (paginated), and commits (paginated) from GitHub
   const octokit = await createInstallationOctokit(Number(installationId), APP_ID, PRIVATE_KEY);
-  const [meta, changedFiles] = await Promise.all([
+  const [meta, changedFiles, commits] = await Promise.all([
     getPRMetadata(octokit, repo.owner, repo.name, pullRequestNumber),
     getChangedFiles(octokit, repo.owner, repo.name, pullRequestNumber),
+    getPRCommits(octokit, repo.owner, repo.name, pullRequestNumber),
   ]);
+
+  log.info(
+    {
+      prNumber: pullRequestNumber,
+      fileCount: changedFiles.length,
+      commitCount: commits.length,
+      headSha,
+    },
+    "PR snapshot ingested"
+  );
 
   // Compute changed line numbers by file
   const changedLinesByFile = new Map<string, Set<number>>();
@@ -60,7 +77,7 @@ export async function processReviewJob(
   const pr = await prisma.pullRequest.upsert({
     where: {
       repositoryId_githubPrNumber: {
-        repositoryId,
+        repositoryId: repo.id,
         githubPrNumber: pullRequestNumber,
       },
     },
@@ -71,7 +88,7 @@ export async function processReviewJob(
       author: meta.author,
     },
     create: {
-      repositoryId,
+      repositoryId: repo.id,
       githubPrNumber: pullRequestNumber,
       headSha,
       baseSha: meta.baseSha,
@@ -83,13 +100,14 @@ export async function processReviewJob(
 
   const reviewJob = await prisma.reviewJob.upsert({
     where: { idempotencyKey: reviewJobId },
-    update: { status: "analyzing", headSha },
+    update: { status: "analyzing", headSha, startedAt: new Date() },
     create: {
-      repositoryId,
+      repositoryId: repo.id,
       pullRequestId: pr.id,
       headSha,
       idempotencyKey: reviewJobId,
       status: "analyzing",
+      startedAt: new Date(),
     },
   });
 
@@ -153,7 +171,7 @@ export async function processReviewJob(
           modelProvider: "google",
           modelName: "gemini-2.0-flash-exp",
           durationMs: ar.durationMs,
-          errorMessage: ar.error,
+          errorMessage: ar.error ?? null,
           outputJson: { findingsCount: ar.findings.length },
         },
       })
@@ -164,7 +182,7 @@ export async function processReviewJob(
     prisma.finding.create({
       data: {
         reviewJobId: reviewJob.id,
-        agentRunId: agentRunCreates[0]?.id,
+        agentRunId: agentRunCreates[0]?.id ?? null,
         fingerprint: computeFindingFingerprint(f.file, f.line, f.category, f.title),
         category: f.category,
         severity: f.severity,

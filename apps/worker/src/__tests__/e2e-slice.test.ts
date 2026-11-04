@@ -70,6 +70,13 @@ vi.mock("@acr/github", () => ({
       deletions: 1,
     },
   ]),
+  getPRCommits: vi.fn().mockResolvedValue([
+    {
+      sha: "head-sha-456",
+      message: "fix: prevent calculation error",
+      author: "dev-user",
+    },
+  ]),
   getChangedLineNumbers: vi.fn().mockReturnValue(new Set([2])),
   publishPRReview: vi.fn().mockResolvedValue({
     reviewId: 999,

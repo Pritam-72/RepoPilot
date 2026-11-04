@@ -16,6 +16,8 @@ export interface WebhookHandlerDeps {
     prNumber: number;
     headSha: string;
     baseSha: string;
+    title?: string;
+    author?: string;
     idempotencyKey: string;
   }) => Promise<void>;
 }
@@ -76,6 +78,8 @@ export function createWebhookHandler(deps: WebhookHandlerDeps) {
       prNumber,
       headSha: pull_request.head.sha,
       baseSha: pull_request.base.sha,
+      title: pull_request.title,
+      author: pull_request.user?.login,
       idempotencyKey,
     });
 
