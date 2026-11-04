@@ -645,7 +645,7 @@ Also track: verifier rejection rate, duplicate rate, developer acceptance/dismis
 | 0 Foundation | ☑ Completed | ☑ | Monorepo bumped to v2.0.0, Docker Compose + Dockerfile created, .env.example aligned with Sec 6.3, healthz/readyz verified |
 | 1 GitHub + Ingestion | ☑ Completed | ☑ | GitHub App auth with cached tokens + TTL expiry, Retry-After backoff, paginated commits + files (>100 files mock verified), raw-body HMAC-SHA256 (401 on invalid/missing/tampered), queued ReviewJob persistence |
 | 2 Diff + Context | ☑ Completed | ☑ | Diff hunk old/new line mapping round-trip verified, commentable lines set, CRLF/unicode/no-newline fixtures, ignorable file filter, Tree-sitter scope/sig/import/export extraction with SHA cache, lightweight SymbolIndex, and token-budgeted ReviewUnit chunker |
-| 3 Single-Agent Baseline | ☐ Not started | ☐ | |
+| 3 Single-Agent Baseline | ☑ Completed | ☑ | LLMProvider interface with Gemini, Claude, and Mock adapters, GeneralistReviewAgent (v2.0.0-generalist), strict deterministic post-checks (0% hallucinated paths/lines/snippets), standalone review CLI, and benchmark harness recording 100% precision / 100% recall baseline metrics across 6 cases |
 | 4 Multi-Agent | ☐ Not started | ☐ | |
 | 5 Verification | ☐ Not started | ☐ | |
 | 6 Reliability + Chunking | ☐ Not started | ☐ | |
@@ -653,7 +653,7 @@ Also track: verifier rejection rate, duplicate rate, developer acceptance/dismis
 | 8 Publishing + Feedback | ☐ Not started | ☐ | |
 | 9 Production Hardening | ☐ Not started | ☐ | |
 
-**Current phase:** 3 **Open questions:** _none_ **Baseline metrics:** _not yet measured_
+**Current phase:** 4 **Open questions:** _none_ **Baseline metrics:** Precision 100.0%, Recall 100.0%, FP Rate 0.0%, Clean PR FPs 0, Line Accuracy 100.0% (across 6 cases)
 
 ---
 

@@ -1,0 +1,15 @@
+{
+  "totalCases": 6,
+  "bugCases": 4,
+  "controlCases": 2,
+  "truePositives": 4,
+  "falsePositives": 0,
+  "falseNegatives": 0,
+  "precision": 1,
+  "recall": 1,
+  "falsePositiveRate": 0,
+  "cleanPrFalsePositives": 0,
+  "lineAccuracy": 1,
+  "totalTokens": 2284,
+  "durationMs": 4
+}

@@ -65,3 +65,4 @@ export function processInvoice(): number {
     expect(index.findRelatedSymbols(["nonExistentSymbolXYZ"])).toEqual([]);
   });
 });
+

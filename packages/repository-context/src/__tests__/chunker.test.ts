@@ -123,3 +123,4 @@ function connectToService() {
     expect(units[0]?.surroundingCode).toContain("[REDACTED_SECRET]");
   });
 });
+

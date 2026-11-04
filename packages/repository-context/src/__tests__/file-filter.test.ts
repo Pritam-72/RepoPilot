@@ -61,3 +61,4 @@ describe("filterReviewableFiles", () => {
     expect(ignored.map((f) => f.path)).toEqual(["package-lock.json", "public/avatar.png"]);
   });
 });
+

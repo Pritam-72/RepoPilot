@@ -1,4 +1,6 @@
 export * from "./llm-provider.js";
+export * from "./generalist-agent.js";
+export * from "./cli.js";
 export * from "./bug-agent.js";
 export * from "./security-agent.js";
 export * from "./quality-agent.js";
@@ -8,4 +10,3 @@ export * from "./fix-agent.js";
 export * from "./performance-agent.js";
 export * from "./dependency-agent.js";
 export * from "./test-gen-agent.js";
-
