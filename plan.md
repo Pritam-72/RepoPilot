@@ -644,7 +644,7 @@ Also track: verifier rejection rate, duplicate rate, developer acceptance/dismis
 |---|---|---|---|
 | 0 Foundation | ☑ Completed | ☑ | Monorepo bumped to v2.0.0, Docker Compose + Dockerfile created, .env.example aligned with Sec 6.3, healthz/readyz verified |
 | 1 GitHub + Ingestion | ☑ Completed | ☑ | GitHub App auth with cached tokens + TTL expiry, Retry-After backoff, paginated commits + files (>100 files mock verified), raw-body HMAC-SHA256 (401 on invalid/missing/tampered), queued ReviewJob persistence |
-| 2 Diff + Context | ☐ Not started | ☐ | |
+| 2 Diff + Context | ☑ Completed | ☑ | Diff hunk old/new line mapping round-trip verified, commentable lines set, CRLF/unicode/no-newline fixtures, ignorable file filter, Tree-sitter scope/sig/import/export extraction with SHA cache, lightweight SymbolIndex, and token-budgeted ReviewUnit chunker |
 | 3 Single-Agent Baseline | ☐ Not started | ☐ | |
 | 4 Multi-Agent | ☐ Not started | ☐ | |
 | 5 Verification | ☐ Not started | ☐ | |
@@ -653,7 +653,7 @@ Also track: verifier rejection rate, duplicate rate, developer acceptance/dismis
 | 8 Publishing + Feedback | ☐ Not started | ☐ | |
 | 9 Production Hardening | ☐ Not started | ☐ | |
 
-**Current phase:** 2 **Open questions:** _none_ **Baseline metrics:** _not yet measured_
+**Current phase:** 3 **Open questions:** _none_ **Baseline metrics:** _not yet measured_
 
 ---
 

@@ -4,10 +4,10 @@ export interface RepoCardProps {
   id: string;
   name: string;
   owner: string;
-  defaultBranch?: string;
+  defaultBranch?: string | undefined;
   reviewCount: number;
-  lastReviewStatus?: "completed" | "analyzing" | "failed";
-  lastReviewAt?: string;
+  lastReviewStatus?: ("completed" | "analyzing" | "failed") | undefined;
+  lastReviewAt?: string | undefined;
 }
 
 export function RepoCard({

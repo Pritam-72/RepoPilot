@@ -16,8 +16,8 @@ export interface WebhookHandlerDeps {
     prNumber: number;
     headSha: string;
     baseSha: string;
-    title?: string;
-    author?: string;
+    title?: string | undefined;
+    author?: string | undefined;
     idempotencyKey: string;
   }) => Promise<void>;
 }
