@@ -170,6 +170,9 @@ importers:
       '@acr/observability':
         specifier: workspace:*
         version: link:../observability
+      '@acr/repository-context':
+        specifier: workspace:*
+        version: link:../repository-context
       '@acr/review-contracts':
         specifier: workspace:*
         version: link:../review-contracts

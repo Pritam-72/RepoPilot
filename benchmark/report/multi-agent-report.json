@@ -12,7 +12,7 @@
   "cleanPrFalsePositives": 0,
   "lineAccuracy": 1,
   "totalTokens": 22000,
-  "durationMs": 6,
+  "durationMs": 7,
   "agentContributions": [
     {
       "agent": "bug-reviewer",
@@ -21,7 +21,7 @@
       "bugsDetected": 1,
       "falsePositives": 0,
       "tokensConsumed": 3700,
-      "durationMs": 3
+      "durationMs": 5
     },
     {
       "agent": "security-reviewer",
@@ -30,7 +30,7 @@
       "bugsDetected": 1,
       "falsePositives": 0,
       "tokensConsumed": 3731,
-      "durationMs": 2
+      "durationMs": 4
     },
     {
       "agent": "error-handling-reviewer",
@@ -39,7 +39,7 @@
       "bugsDetected": 1,
       "falsePositives": 0,
       "tokensConsumed": 3652,
-      "durationMs": 1
+      "durationMs": 3
     },
     {
       "agent": "test-coverage-reviewer",
@@ -48,7 +48,7 @@
       "bugsDetected": 0,
       "falsePositives": 0,
       "tokensConsumed": 3532,
-      "durationMs": 1
+      "durationMs": 2
     },
     {
       "agent": "performance-reviewer",
@@ -66,7 +66,7 @@
       "bugsDetected": 0,
       "falsePositives": 0,
       "tokensConsumed": 3678,
-      "durationMs": 1
+      "durationMs": 2
     }
   ]
 }
