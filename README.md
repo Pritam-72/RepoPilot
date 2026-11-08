@@ -1,4 +1,4 @@
-# RepoPilot 🚀
+# RepoPilot 
 ### Event-Driven Multi-Agent GitHub Code Reviewer & Safe Remediation Platform
 
 RepoPilot is an enterprise-grade, event-driven multi-agent AI code review platform. It analyzes incoming GitHub pull requests using specialized agents (Logic/Bug, Security, Quality, Performance, Dependency), enriches diffs with Tree-sitter AST and symbol context, runs deterministic static analysis, verifies findings against exact source evidence, and publishes actionable, evidence-backed inline comments to GitHub.

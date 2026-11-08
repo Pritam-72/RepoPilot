@@ -27,6 +27,7 @@ export const ReviewJobPayloadSchema = z.object({
   pullRequestNumber: z.number(),
   headSha: z.string(),
   deliveryId: z.string(),
+  dryRun: z.boolean().optional(),
 });
 
 export const JobStatusSchema = z.enum([

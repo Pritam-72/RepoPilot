@@ -7,7 +7,7 @@ import type { RequestWithRawBody } from "../server.js";
 // Injected at runtime — avoids circular deps and keeps handler testable
 export interface WebhookHandlerDeps {
   webhookSecret: string;
-  upsertDelivery: (githubDeliveryId: string) => Promise<{ isNew: boolean }>;
+  upsertDelivery: (githubDeliveryId: string, eventType?: string) => Promise<{ isNew: boolean }>;
   enqueueReview: (payload: {
     installationId: number;
     repositoryId: number;
@@ -19,7 +19,17 @@ export interface WebhookHandlerDeps {
     title?: string | undefined;
     author?: string | undefined;
     idempotencyKey: string;
+    dryRun?: boolean | undefined;
   }) => Promise<void>;
+  handleFeedback?: (payload: {
+    event: string;
+    action: string;
+    repository: { id: number; owner: string; name: string };
+    sender: { login: string };
+    comment?: { id: number; body: string; in_reply_to_id?: number; original_commit_id?: string } | undefined;
+    reaction?: { content: string } | undefined;
+    issueNumber?: number | undefined;
+  }) => Promise<{ handled: boolean; command?: string | null; findingId?: string | undefined }>;
 }
 
 const HANDLED_ACTIONS = new Set(["opened", "reopened", "synchronize"]);
@@ -37,7 +47,43 @@ export function createWebhookHandler(deps: WebhookHandlerDeps) {
       return;
     }
 
-    // 2. Only handle pull_request events
+    // 2. Handle feedback events (pull_request_review_comment, issue_comment)
+    if (
+      (event === "pull_request_review_comment" || event === "issue_comment") &&
+      deps.handleFeedback
+    ) {
+      const gDeliveryId = deliveryId ?? `${Date.now()}`;
+      await deps.upsertDelivery(gDeliveryId, event);
+
+      const body = req.body;
+      const feedbackResult = await deps.handleFeedback({
+        event,
+        action: body.action,
+        repository: {
+          id: body.repository?.id,
+          owner: body.repository?.owner?.login ?? "",
+          name: body.repository?.name ?? "",
+        },
+        sender: {
+          login: body.sender?.login ?? body.comment?.user?.login ?? "unknown",
+        },
+        comment: body.comment
+          ? {
+              id: body.comment.id,
+              body: body.comment.body ?? "",
+              in_reply_to_id: body.comment.in_reply_to_id,
+              original_commit_id: body.comment.original_commit_id,
+            }
+          : undefined,
+        reaction: body.reaction,
+        issueNumber: body.issue?.number ?? body.pull_request?.number,
+      });
+
+      res.status(200).json({ ok: true, feedback: feedbackResult });
+      return;
+    }
+
+    // 3. Only handle pull_request events
     if (event !== "pull_request") {
       res.status(200).json({ ok: true, skipped: true });
       return;

@@ -45,6 +45,8 @@ vi.mock("@acr/database", () => {
       },
       finding: {
         create: vi.fn().mockResolvedValue({ id: "finding-1" }),
+        findMany: vi.fn().mockResolvedValue([]),
+        updateMany: vi.fn().mockResolvedValue({ count: 0 }),
       },
       $transaction: vi.fn().mockImplementation(async (promises: unknown[]) => {
         return Promise.all(promises);

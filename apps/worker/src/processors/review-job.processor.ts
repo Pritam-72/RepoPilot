@@ -141,9 +141,52 @@ export async function processReviewJob(
     { minConfidence: 0.75, requireChangedLine: false }
   );
 
-  // 6. Publish review to GitHub
+  // 6. Query previously dismissed findings on this repository to suppress repeated warnings (Phase 8)
+  const dismissedDbFindings = prisma.finding.findMany
+    ? await prisma.finding.findMany({
+        where: {
+          reviewJob: { repositoryId: repo.id },
+          OR: [
+            { verificationStatus: "dismissed" },
+            { feedbacks: { some: { feedbackType: { in: ["dismissed", "incorrect", "ignored_rule"] } } } },
+          ],
+        },
+        select: { fingerprint: true },
+      })
+    : [];
+  const dismissedFingerprints = new Set(dismissedDbFindings.map((f) => f.fingerprint));
+
+  const activeFindings: typeof verification.verified = [];
+  const suppressedFindings: typeof verification.verified = [];
+
+  for (const f of verification.verified) {
+    const fp = computeFindingFingerprint(f.file, f.line, f.category, f.title);
+    if (dismissedFingerprints.has(fp)) {
+      suppressedFindings.push(f);
+    } else {
+      activeFindings.push(f);
+    }
+  }
+
+  // 7. Outdate prior published findings on previous review runs for this pull request (avoid stale duplicates)
+  if (prisma.finding.updateMany) {
+    await prisma.finding.updateMany({
+      where: {
+        reviewJob: {
+          pullRequestId: pr.id,
+          id: { not: reviewJob.id },
+        },
+        publicationStatus: "published",
+      },
+      data: { publicationStatus: "outdated" },
+    });
+  }
+
+  // 8. Publish review to GitHub (with dry-run and coverage support)
+  const isDryRun = payload.dryRun === true || process.env["DRY_RUN"] === "true";
   let publishedCount = 0;
-  if (verification.verified.length > 0) {
+
+  if (activeFindings.length > 0) {
     try {
       const pubResult = await publishPRReview({
         octokit,
@@ -151,8 +194,10 @@ export async function processReviewJob(
         repo: repo.name,
         prNumber: pullRequestNumber,
         commitSha: headSha,
-        findings: verification.verified,
+        findings: activeFindings,
         changedLinesByFile,
+        coverage: reviewResult.coverage,
+        dryRun: isDryRun,
       });
       publishedCount = pubResult.inlineCommentsCount + pubResult.summaryFindingsCount;
     } catch (err: unknown) {
@@ -160,7 +205,7 @@ export async function processReviewJob(
     }
   }
 
-  // 7. Persist AgentRuns and Findings atomically
+  // 9. Persist AgentRuns and Findings atomically
   const agentRunCreates = await Promise.all(
     reviewResult.agentRuns.map((ar) =>
       prisma.agentRun.create({
@@ -178,27 +223,50 @@ export async function processReviewJob(
     )
   );
 
-  const findingCreates = verification.verified.map((f) =>
-    prisma.finding.create({
-      data: {
-        reviewJobId: reviewJob.id,
-        agentRunId: agentRunCreates[0]?.id ?? null,
-        fingerprint: computeFindingFingerprint(f.file, f.line, f.category, f.title),
-        category: f.category,
-        severity: f.severity,
-        confidence: f.confidence,
-        filePath: f.file,
-        line: f.line,
-        endLine: f.endLine ?? f.line,
-        title: f.title,
-        description: f.description,
-        evidence: f.evidence,
-        recommendation: f.recommendation ?? "",
-        verificationStatus: "verified",
-        publicationStatus: publishedCount > 0 ? "published" : "pending",
-      },
-    })
-  );
+  const findingCreates = [
+    ...activeFindings.map((f) =>
+      prisma.finding.create({
+        data: {
+          reviewJobId: reviewJob.id,
+          agentRunId: agentRunCreates[0]?.id ?? null,
+          fingerprint: computeFindingFingerprint(f.file, f.line, f.category, f.title),
+          category: f.category,
+          severity: f.severity,
+          confidence: f.confidence,
+          filePath: f.file,
+          line: f.line,
+          endLine: f.endLine ?? f.line,
+          title: f.title,
+          description: f.description,
+          evidence: f.evidence,
+          recommendation: f.recommendation ?? "",
+          verificationStatus: "verified",
+          publicationStatus: isDryRun ? "dry_run" : publishedCount > 0 ? "published" : "pending",
+        },
+      })
+    ),
+    ...suppressedFindings.map((f) =>
+      prisma.finding.create({
+        data: {
+          reviewJobId: reviewJob.id,
+          agentRunId: agentRunCreates[0]?.id ?? null,
+          fingerprint: computeFindingFingerprint(f.file, f.line, f.category, f.title),
+          category: f.category,
+          severity: f.severity,
+          confidence: f.confidence,
+          filePath: f.file,
+          line: f.line,
+          endLine: f.endLine ?? f.line,
+          title: f.title,
+          description: f.description,
+          evidence: f.evidence,
+          recommendation: f.recommendation ?? "",
+          verificationStatus: "dismissed",
+          publicationStatus: "suppressed",
+        },
+      })
+    ),
+  ];
 
   await prisma.$transaction([
     ...findingCreates,

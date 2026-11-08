@@ -154,4 +154,44 @@ describe("Webhook idempotency", () => {
     expect(res.body.skipped).toBe(true);
     expect(enqueueReview).not.toHaveBeenCalled();
   });
+
+  it("handles pull_request_review_comment feedback webhook events", async () => {
+    const handleFeedback = vi.fn().mockResolvedValue({
+      handled: true,
+      command: "dismiss",
+      findingId: "find-123",
+    });
+
+    const commentPayload = {
+      action: "created",
+      comment: {
+        id: 999,
+        body: "/dismiss False positive in test mock",
+        user: { login: "octocat" },
+      },
+      repository: { id: 99, name: "my-repo", owner: { login: "acme" } },
+      pull_request: { number: 42 },
+    };
+
+    const app = makeApp({
+      webhookSecret: SECRET,
+      upsertDelivery,
+      enqueueReview,
+      handleFeedback,
+    });
+
+    const res = await request(app)
+      .post("/webhook")
+      .set("x-hub-signature-256", sign(commentPayload))
+      .set("x-github-delivery", "deliv-comment-1")
+      .set("x-github-event", "pull_request_review_comment")
+      .send(commentPayload);
+
+    expect(res.status).toBe(200);
+    expect(res.body.ok).toBe(true);
+    expect(handleFeedback).toHaveBeenCalledOnce();
+    const arg = handleFeedback.mock.calls[0]![0];
+    expect(arg.comment.body).toContain("/dismiss");
+    expect(arg.sender.login).toBe("octocat");
+  });
 });

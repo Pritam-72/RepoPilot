@@ -14,6 +14,7 @@
   "dependencies": {
     "@acr/agents": "workspace:*",
     "@acr/database": "workspace:*",
+    "@acr/github": "workspace:*",
     "@acr/observability": "workspace:*",
     "@acr/review-contracts": "workspace:*",
     "express": "^4.19.0",
