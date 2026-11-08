@@ -146,3 +146,4 @@ export function filterDismissedFindings(
 
   return { active, suppressed };
 }
+

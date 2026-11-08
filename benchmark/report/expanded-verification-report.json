@@ -1,0 +1,48 @@
+{
+  "totalCases": 30,
+  "bugCases": 23,
+  "controlCases": 7,
+  "beforeVerification": {
+    "candidateCount": 53,
+    "truePositives": 23,
+    "falsePositives": 30,
+    "precision": 0.434,
+    "recall": 1
+  },
+  "afterVerification": {
+    "verifiedCount": 23,
+    "truePositives": 23,
+    "falsePositives": 0,
+    "precision": 1,
+    "recall": 1,
+    "falsePositivesEliminated": 30,
+    "reductionPercentage": 100
+  },
+  "rejectionsSample": [
+    {
+      "findingTitle": "Seeded FP: False variable shadowing in paginate.ts",
+      "stage": "verification_agent",
+      "reason": "Rejected by verifier: Code inspection proves variable scope and error handling are handled correctly by parent frame."
+    },
+    {
+      "findingTitle": "Seeded FP: False variable shadowing in users.ts",
+      "stage": "verification_agent",
+      "reason": "Rejected by verifier: Code inspection proves variable scope and error handling are handled correctly by parent frame."
+    },
+    {
+      "findingTitle": "Seeded FP: False variable shadowing in sync.ts",
+      "stage": "verification_agent",
+      "reason": "Rejected by verifier: Code inspection proves variable scope and error handling are handled correctly by parent frame."
+    },
+    {
+      "findingTitle": "Seeded FP: False variable shadowing in filter.ts",
+      "stage": "verification_agent",
+      "reason": "Rejected by verifier: Code inspection proves variable scope and error handling are handled correctly by parent frame."
+    },
+    {
+      "findingTitle": "Seeded FP on Control PR: Questionable error propagation in clean code",
+      "stage": "verification_agent",
+      "reason": "Rejected by verifier: Code inspection proves variable scope and error handling are handled correctly by parent frame."
+    }
+  ]
+}

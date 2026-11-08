@@ -1,9 +1,9 @@
 {
   "mode": "multi",
-  "totalCases": 6,
-  "bugCases": 4,
-  "controlCases": 2,
-  "truePositives": 4,
+  "totalCases": 30,
+  "bugCases": 23,
+  "controlCases": 7,
+  "truePositives": 23,
   "falsePositives": 0,
   "falseNegatives": 0,
   "precision": 1,
@@ -11,62 +11,208 @@
   "falsePositiveRate": 0,
   "cleanPrFalsePositives": 0,
   "lineAccuracy": 1,
-  "totalTokens": 22000,
-  "durationMs": 7,
+  "totalTokens": 115973,
+  "durationMs": 22,
   "agentContributions": [
     {
       "agent": "bug-reviewer",
       "category": "bug",
-      "casesReviewed": 6,
-      "bugsDetected": 1,
+      "casesReviewed": 30,
+      "bugsDetected": 5,
       "falsePositives": 0,
-      "tokensConsumed": 3700,
+      "tokensConsumed": 19494,
       "durationMs": 5
     },
     {
       "agent": "security-reviewer",
       "category": "security",
-      "casesReviewed": 6,
-      "bugsDetected": 1,
+      "casesReviewed": 30,
+      "bugsDetected": 6,
       "falsePositives": 0,
-      "tokensConsumed": 3731,
-      "durationMs": 4
+      "tokensConsumed": 19650,
+      "durationMs": 5
     },
     {
       "agent": "error-handling-reviewer",
       "category": "error-handling",
-      "casesReviewed": 6,
-      "bugsDetected": 1,
+      "casesReviewed": 30,
+      "bugsDetected": 4,
       "falsePositives": 0,
-      "tokensConsumed": 3652,
-      "durationMs": 3
+      "tokensConsumed": 19254,
+      "durationMs": 9
     },
     {
       "agent": "test-coverage-reviewer",
       "category": "test",
-      "casesReviewed": 6,
-      "bugsDetected": 0,
+      "casesReviewed": 30,
+      "bugsDetected": 2,
       "falsePositives": 0,
-      "tokensConsumed": 3532,
-      "durationMs": 2
+      "tokensConsumed": 18654,
+      "durationMs": 10
     },
     {
       "agent": "performance-reviewer",
       "category": "performance",
-      "casesReviewed": 6,
-      "bugsDetected": 1,
+      "casesReviewed": 30,
+      "bugsDetected": 5,
       "falsePositives": 0,
-      "tokensConsumed": 3707,
-      "durationMs": 1
+      "tokensConsumed": 19530,
+      "durationMs": 11
     },
     {
       "agent": "quality-reviewer",
       "category": "quality",
-      "casesReviewed": 6,
-      "bugsDetected": 0,
+      "casesReviewed": 30,
+      "bugsDetected": 1,
       "falsePositives": 0,
-      "tokensConsumed": 3678,
-      "durationMs": 2
+      "tokensConsumed": 19391,
+      "durationMs": 13
     }
-  ]
+  ],
+  "categoryBreakdown": {
+    "bug": {
+      "name": "bug",
+      "totalCases": 5,
+      "bugCases": 5,
+      "controlCases": 0,
+      "truePositives": 5,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "security": {
+      "name": "security",
+      "totalCases": 6,
+      "bugCases": 6,
+      "controlCases": 0,
+      "truePositives": 6,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "error-handling": {
+      "name": "error-handling",
+      "totalCases": 4,
+      "bugCases": 4,
+      "controlCases": 0,
+      "truePositives": 4,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "performance": {
+      "name": "performance",
+      "totalCases": 5,
+      "bugCases": 5,
+      "controlCases": 0,
+      "truePositives": 5,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "quality": {
+      "name": "quality",
+      "totalCases": 8,
+      "bugCases": 1,
+      "controlCases": 7,
+      "truePositives": 1,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "test": {
+      "name": "test",
+      "totalCases": 2,
+      "bugCases": 2,
+      "controlCases": 0,
+      "truePositives": 2,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    }
+  },
+  "splitBreakdown": {
+    "dev": {
+      "name": "dev",
+      "totalCases": 18,
+      "bugCases": 13,
+      "controlCases": 5,
+      "truePositives": 13,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "test": {
+      "name": "test",
+      "totalCases": 12,
+      "bugCases": 10,
+      "controlCases": 2,
+      "truePositives": 10,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    }
+  },
+  "repoBreakdown": {
+    "Pritam-72/RepoPilot": {
+      "name": "Pritam-72/RepoPilot",
+      "totalCases": 6,
+      "bugCases": 4,
+      "controlCases": 2,
+      "truePositives": 4,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "expressjs/express": {
+      "name": "expressjs/express",
+      "totalCases": 5,
+      "bugCases": 4,
+      "controlCases": 1,
+      "truePositives": 4,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "fastify/fastify": {
+      "name": "fastify/fastify",
+      "totalCases": 5,
+      "bugCases": 4,
+      "controlCases": 1,
+      "truePositives": 4,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "prisma/prisma": {
+      "name": "prisma/prisma",
+      "totalCases": 5,
+      "bugCases": 4,
+      "controlCases": 1,
+      "truePositives": 4,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "lodash/lodash": {
+      "name": "lodash/lodash",
+      "totalCases": 4,
+      "bugCases": 3,
+      "controlCases": 1,
+      "truePositives": 3,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "facebook/react": {
+      "name": "facebook/react",
+      "totalCases": 5,
+      "bugCases": 4,
+      "controlCases": 1,
+      "truePositives": 4,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    }
+  }
 }

@@ -49,6 +49,17 @@ export interface AgentContribution {
   durationMs: number;
 }
 
+export interface GroupMetrics {
+  name: string;
+  totalCases: number;
+  bugCases: number;
+  controlCases: number;
+  truePositives: number;
+  falsePositives: number;
+  precision: number;
+  recall: number;
+}
+
 export interface BenchmarkMetrics {
   mode: "single" | "multi";
   totalCases: number;
@@ -65,6 +76,9 @@ export interface BenchmarkMetrics {
   totalTokens: number;
   durationMs: number;
   agentContributions?: AgentContribution[] | undefined;
+  categoryBreakdown?: Record<string, GroupMetrics>;
+  splitBreakdown?: Record<string, GroupMetrics>;
+  repoBreakdown?: Record<string, GroupMetrics>;
 }
 
 export interface VerificationComparisonReport {
@@ -94,6 +108,53 @@ export interface VerificationComparisonReport {
   }>;
 }
 
+export interface BenchmarkFilterOptions {
+  split?: "dev" | "test" | "all";
+  category?: string;
+  repo?: string;
+  reportFileName?: string;
+}
+
+export interface ExpandedBenchmarkReport {
+  timestamp: string;
+  totalDatasetCases: number;
+  repoCount: number;
+  categories: string[];
+  devSplit: {
+    casesCount: number;
+    baseline: BenchmarkMetrics;
+    multiAgent: BenchmarkMetrics;
+    improvement: {
+      precisionDelta: number;
+      recallDelta: number;
+    };
+  };
+  testSplit: {
+    casesCount: number;
+    baseline: BenchmarkMetrics;
+    multiAgent: BenchmarkMetrics;
+    generalizationGap: {
+      precisionGap: number;
+      recallGap: number;
+    };
+  };
+  verification: VerificationComparisonReport;
+  summary: {
+    overallPrecision: number;
+    overallRecall: number;
+    falsePositiveRate: number;
+    cleanPrFalsePositives: number;
+    lineAccuracy: number;
+    targetsMet: {
+      precisionTargetMet: boolean;
+      recallFloorMet: boolean;
+      fprTargetMet: boolean;
+      cleanPrFpTargetMet: boolean;
+      lineAccuracyTargetMet: boolean;
+    };
+  };
+}
+
 export function isLocationMatch(
   finding: { file: string; lineStart: number; lineEnd: number },
   expected: { file: string; lineStart: number; lineEnd: number },
@@ -105,10 +166,16 @@ export function isLocationMatch(
   return startDiff <= tolerance || endDiff <= tolerance;
 }
 
+export function getTargetAgentForCategory(category: string): string {
+  if (category === "test") return "test-coverage-reviewer";
+  return `${category}-reviewer`;
+}
+
 export async function runBenchmark(
   casesPath?: string,
   provider?: LLMProvider,
-  mode: "single" | "multi" = "single"
+  mode: "single" | "multi" = "single",
+  options?: BenchmarkFilterOptions
 ): Promise<BenchmarkMetrics> {
   const datasetPath =
     casesPath ??
@@ -116,7 +183,17 @@ export async function runBenchmark(
       ? path.resolve(__dirname, "..", "dataset", "cases.json")
       : path.resolve(process.cwd(), "benchmark", "dataset", "cases.json"));
   const raw = readFileSync(datasetPath, "utf-8");
-  const cases: BenchmarkCase[] = JSON.parse(raw);
+  let cases: BenchmarkCase[] = JSON.parse(raw);
+
+  if (options?.split && options.split !== "all") {
+    cases = cases.filter((c) => c.split === options.split);
+  }
+  if (options?.category) {
+    cases = cases.filter((c) => c.category === options.category);
+  }
+  if (options?.repo) {
+    cases = cases.filter((c) => c.repo === options.repo);
+  }
 
   let truePositives = 0;
   let falsePositives = 0;
@@ -142,8 +219,38 @@ export async function runBenchmark(
     });
   }
 
+  // Tracking per-category, per-split, and per-repo groups
+  const catMap = new Map<string, { total: number; bugs: number; controls: number; tp: number; fp: number }>();
+  const splitMap = new Map<string, { total: number; bugs: number; controls: number; tp: number; fp: number }>();
+  const repoMap = new Map<string, { total: number; bugs: number; controls: number; tp: number; fp: number }>();
+
+  const initGroup = (map: Map<string, { total: number; bugs: number; controls: number; tp: number; fp: number }>, key: string) => {
+    if (!map.has(key)) {
+      map.set(key, { total: 0, bugs: 0, controls: 0, tp: 0, fp: 0 });
+    }
+    return map.get(key)!;
+  };
+
   for (const c of cases) {
-    let testProvider = activeProvider;
+    const catGroup = initGroup(catMap, c.category);
+    const splitGroup = initGroup(splitMap, c.split);
+    const repoGroup = initGroup(repoMap, c.repo);
+
+    catGroup.total++;
+    splitGroup.total++;
+    repoGroup.total++;
+
+    if (c.isControl) {
+      catGroup.controls++;
+      splitGroup.controls++;
+      repoGroup.controls++;
+    } else {
+      catGroup.bugs++;
+      splitGroup.bugs++;
+      repoGroup.bugs++;
+    }
+
+    const testProvider = activeProvider;
 
     // In mock mode, supply deterministic responses aligned with test cases and agent roles
     if (activeProvider.name === "mock") {
@@ -155,11 +262,12 @@ export async function runBenchmark(
         }));
       } else {
         const loc = c.expectedLocations[0]!;
+        const targetAgent = getTargetAgentForCategory(c.category);
+
         mock.setResponseHandler((prompt: string) => {
           const isCategoryMatch =
-            prompt.includes(`"category": "${c.category}"`) ||
-            prompt.includes(`(${c.category})`) ||
-            prompt.includes(`category: ${c.category}`) ||
+            prompt.includes(`focusing exclusively on: ${targetAgent}`) ||
+            prompt.includes(`(${c.category})`) && prompt.includes("exclusively on:") ||
             mode === "single";
 
           if (isCategoryMatch) {
@@ -178,7 +286,7 @@ export async function runBenchmark(
                   impact: "Violates specification",
                   suggestion: c.fixSummary,
                   confidence: 0.95,
-                  sourceAgent: mode === "single" ? "generalist-reviewer" : `${c.category}-reviewer`,
+                  sourceAgent: mode === "single" ? "generalist-reviewer" : targetAgent,
                 },
               ],
             };
@@ -231,6 +339,9 @@ export async function runBenchmark(
       if (findings.length > 0) {
         falsePositives += findings.length;
         cleanPrFpCount += findings.length;
+        catGroup.fp += findings.length;
+        splitGroup.fp += findings.length;
+        repoGroup.fp += findings.length;
       }
     } else {
       let foundBug = false;
@@ -240,8 +351,14 @@ export async function runBenchmark(
           truePositives++;
           lineAccurateCount++;
           foundBug = true;
+          catGroup.tp++;
+          splitGroup.tp++;
+          repoGroup.tp++;
         } else {
           falsePositives++;
+          catGroup.fp++;
+          splitGroup.fp++;
+          repoGroup.fp++;
         }
       }
 
@@ -273,6 +390,23 @@ export async function runBenchmark(
   const agentContributions =
     mode === "multi" ? Array.from(agentStatsMap.values()) : undefined;
 
+  const buildGroupRecord = (map: Map<string, { total: number; bugs: number; controls: number; tp: number; fp: number }>) => {
+    const rec: Record<string, GroupMetrics> = {};
+    for (const [k, v] of map.entries()) {
+      rec[k] = {
+        name: k,
+        totalCases: v.total,
+        bugCases: v.bugs,
+        controlCases: v.controls,
+        truePositives: v.tp,
+        falsePositives: v.fp,
+        precision: v.tp + v.fp > 0 ? Number((v.tp / (v.tp + v.fp)).toFixed(4)) : 1.0,
+        recall: v.bugs > 0 ? Number((v.tp / v.bugs).toFixed(4)) : 1.0,
+      };
+    }
+    return rec;
+  };
+
   const metrics: BenchmarkMetrics = {
     mode,
     totalCases: cases.length,
@@ -289,13 +423,17 @@ export async function runBenchmark(
     totalTokens,
     durationMs: Date.now() - startBench,
     agentContributions,
+    categoryBreakdown: buildGroupRecord(catMap),
+    splitBreakdown: buildGroupRecord(splitMap),
+    repoBreakdown: buildGroupRecord(repoMap),
   };
 
   const reportDir = path.resolve(__dirname, "..", "report");
   mkdirSync(reportDir, { recursive: true });
-  const reportFileName = mode === "multi" ? "multi-agent-report.json" : "baseline-report.json";
+  const defaultFileName = mode === "multi" ? "multi-agent-report.json" : "baseline-report.json";
+  const finalFileName = options?.reportFileName ?? defaultFileName;
   writeFileSync(
-    path.join(reportDir, reportFileName),
+    path.join(reportDir, finalFileName),
     JSON.stringify(metrics, null, 2),
     "utf-8"
   );
@@ -309,7 +447,8 @@ export async function runBenchmark(
  */
 export async function runVerificationBenchmark(
   casesPath?: string,
-  verifierProvider?: LLMProvider
+  verifierProvider?: LLMProvider,
+  options?: BenchmarkFilterOptions
 ): Promise<VerificationComparisonReport> {
   const datasetPath =
     casesPath ??
@@ -317,7 +456,17 @@ export async function runVerificationBenchmark(
       ? path.resolve(__dirname, "..", "dataset", "cases.json")
       : path.resolve(process.cwd(), "benchmark", "dataset", "cases.json"));
   const raw = readFileSync(datasetPath, "utf-8");
-  const cases: BenchmarkCase[] = JSON.parse(raw);
+  let cases: BenchmarkCase[] = JSON.parse(raw);
+
+  if (options?.split && options.split !== "all") {
+    cases = cases.filter((c) => c.split === options.split);
+  }
+  if (options?.category) {
+    cases = cases.filter((c) => c.category === options.category);
+  }
+  if (options?.repo) {
+    cases = cases.filter((c) => c.repo === options.repo);
+  }
 
   let beforeTP = 0;
   let beforeFP = 0;
@@ -339,6 +488,7 @@ export async function runVerificationBenchmark(
   for (const c of cases) {
     const candidates: FindingV2[] = [];
     const lines = c.fileContext.content.split("\n");
+    const targetAgent = getTargetAgentForCategory(c.category);
 
     if (!c.isControl) {
       const loc = c.expectedLocations[0]!;
@@ -355,7 +505,7 @@ export async function runVerificationBenchmark(
         impact: "Causes incorrect behavior",
         suggestion: c.fixSummary,
         confidence: 0.9,
-        sourceAgent: `${c.category}-reviewer`,
+        sourceAgent: targetAgent,
       });
       beforeTP++;
       totalCandidates++;
@@ -458,12 +608,13 @@ export async function runVerificationBenchmark(
   const bugCases = cases.filter((c) => !c.isControl).length;
   const controlCases = cases.filter((c) => c.isControl).length;
 
-  const precisionBefore = Number((beforeTP / (beforeTP + beforeFP)).toFixed(4));
-  const recallBefore = Number((beforeTP / bugCases).toFixed(4));
+  const precisionBefore =
+    beforeTP + beforeFP > 0 ? Number((beforeTP / (beforeTP + beforeFP)).toFixed(4)) : 0;
+  const recallBefore = bugCases > 0 ? Number((beforeTP / bugCases).toFixed(4)) : 0;
 
   const precisionAfter =
     afterTP + afterFP > 0 ? Number((afterTP / (afterTP + afterFP)).toFixed(4)) : 0;
-  const recallAfter = Number((afterTP / bugCases).toFixed(4));
+  const recallAfter = bugCases > 0 ? Number((afterTP / bugCases).toFixed(4)) : 0;
 
   const fpsEliminated = beforeFP - afterFP;
   const reductionPercentage =
@@ -494,8 +645,120 @@ export async function runVerificationBenchmark(
 
   const reportDir = path.resolve(__dirname, "..", "report");
   mkdirSync(reportDir, { recursive: true });
+  const finalFileName = options?.reportFileName ?? "verification-report.json";
   writeFileSync(
-    path.join(reportDir, "verification-report.json"),
+    path.join(reportDir, finalFileName),
+    JSON.stringify(report, null, 2),
+    "utf-8"
+  );
+
+  return report;
+}
+
+/**
+ * Phase 7 Full Historical Bug Benchmark & Evaluation Suite
+ * Executes baseline single-agent, multi-agent architecture, and independent verification
+ * across both dev and test splits, generating a unified evaluation report.
+ */
+export async function runExpandedBenchmark(options?: {
+  casesPath?: string;
+  provider?: LLMProvider;
+  verifierProvider?: LLMProvider;
+}): Promise<ExpandedBenchmarkReport> {
+  const provider = options?.provider ?? new MockLLMProvider();
+  const verifierProvider = options?.verifierProvider ?? new MockLLMProvider();
+
+  // 1. Dev Split
+  const baselineDev = await runBenchmark(options?.casesPath, provider, "single", {
+    split: "dev",
+    reportFileName: "dev-baseline-report.json",
+  });
+  const multiDev = await runBenchmark(options?.casesPath, provider, "multi", {
+    split: "dev",
+    reportFileName: "dev-multi-report.json",
+  });
+
+  // 2. Test Split (Held-Out)
+  const baselineTest = await runBenchmark(options?.casesPath, provider, "single", {
+    split: "test",
+    reportFileName: "test-baseline-report.json",
+  });
+  const multiTest = await runBenchmark(options?.casesPath, provider, "multi", {
+    split: "test",
+    reportFileName: "test-multi-report.json",
+  });
+
+  // 3. Verification Report on full dataset
+  const verifReport = await runVerificationBenchmark(options?.casesPath, verifierProvider, {
+    split: "all",
+    reportFileName: "expanded-verification-report.json",
+  });
+
+  // 4. Overall Multi-Agent Benchmark on all cases
+  const overallMulti = await runBenchmark(options?.casesPath, provider, "multi", {
+    split: "all",
+    reportFileName: "all-multi-agent-report.json",
+  });
+
+  const datasetPath =
+    options?.casesPath ??
+    (existsSync(path.resolve(__dirname, "..", "dataset", "cases.json"))
+      ? path.resolve(__dirname, "..", "dataset", "cases.json")
+      : path.resolve(process.cwd(), "benchmark", "dataset", "cases.json"));
+  const allCases: BenchmarkCase[] = JSON.parse(readFileSync(datasetPath, "utf-8"));
+  const repoSet = new Set(allCases.map((c) => c.repo));
+  const categorySet = Array.from(new Set(allCases.map((c) => c.category)));
+
+  const precisionTargetMet = overallMulti.precision >= 0.70;
+  const recallFloorMet = overallMulti.recall >= 0.70;
+  const fprTargetMet = overallMulti.falsePositiveRate <= 0.30;
+  const cleanPrFpTargetMet = overallMulti.cleanPrFalsePositives <= 1.0;
+  const lineAccuracyTargetMet = overallMulti.lineAccuracy >= 0.95;
+
+  const report: ExpandedBenchmarkReport = {
+    timestamp: new Date().toISOString(),
+    totalDatasetCases: allCases.length,
+    repoCount: repoSet.size,
+    categories: categorySet,
+    devSplit: {
+      casesCount: baselineDev.totalCases,
+      baseline: baselineDev,
+      multiAgent: multiDev,
+      improvement: {
+        precisionDelta: Number((multiDev.precision - baselineDev.precision).toFixed(4)),
+        recallDelta: Number((multiDev.recall - baselineDev.recall).toFixed(4)),
+      },
+    },
+    testSplit: {
+      casesCount: baselineTest.totalCases,
+      baseline: baselineTest,
+      multiAgent: multiTest,
+      generalizationGap: {
+        precisionGap: Number(Math.abs(multiDev.precision - multiTest.precision).toFixed(4)),
+        recallGap: Number(Math.abs(multiDev.recall - multiTest.recall).toFixed(4)),
+      },
+    },
+    verification: verifReport,
+    summary: {
+      overallPrecision: overallMulti.precision,
+      overallRecall: overallMulti.recall,
+      falsePositiveRate: overallMulti.falsePositiveRate,
+      cleanPrFalsePositives: overallMulti.cleanPrFalsePositives,
+      lineAccuracy: overallMulti.lineAccuracy,
+      targetsMet: {
+        precisionTargetMet,
+        recallFloorMet,
+        fprTargetMet,
+        cleanPrFpTargetMet,
+        lineAccuracyTargetMet,
+      },
+    },
+  };
+
+  const reportDir = path.resolve(__dirname, "..", "report");
+  mkdirSync(reportDir, { recursive: true });
+  writeFileSync(
+    path.join(reportDir, "expanded-benchmark-report.json"),
     JSON.stringify(report, null, 2),
     "utf-8"
   );
@@ -507,13 +770,50 @@ const currentScript = process.argv[1]?.replace(/\\/g, "/") ?? "";
 if (currentScript.endsWith("runner/index.js") || currentScript.endsWith("runner/index.ts")) {
   const isVerify = process.argv.includes("--verify");
   const isMulti = process.argv.includes("--multi");
+  const isExpanded = process.argv.includes("--expanded") || process.argv.includes("--all");
+
+  const splitArg = process.argv.find((a) => a.startsWith("--split="));
+  const split = splitArg ? (splitArg.split("=")[1] as "dev" | "test" | "all") : "all";
+
+  const catArg = process.argv.find((a) => a.startsWith("--category="));
+  const category = catArg ? catArg.split("=")[1] : undefined;
+
+  const repoArg = process.argv.find((a) => a.startsWith("--repo="));
+  const repo = repoArg ? repoArg.split("=")[1] : undefined;
+
   const provider =
     process.env["CI"] || !process.env["GOOGLE_GENERATIVE_AI_API_KEY"]
       ? new MockLLMProvider()
       : undefined;
 
-  if (isVerify) {
-    runVerificationBenchmark(undefined, provider).then((rep) => {
+  if (isExpanded) {
+    runExpandedBenchmark({ provider, verifierProvider: provider }).then((rep) => {
+      console.log("\n==========================================================================");
+      console.log(" HISTORICAL BUG BENCHMARK: EXPANDED EVALUATION REPORT (PHASE 7) ");
+      console.log("==========================================================================");
+      console.log(`Total Dataset Cases:      ${rep.totalDatasetCases} across ${rep.repoCount} repositories`);
+      console.log(`Evaluated Categories:     ${rep.categories.join(", ")}`);
+      console.log(`Dev Split Cases:          ${rep.devSplit.casesCount}`);
+      console.log(`Test (Held-Out) Cases:    ${rep.testSplit.casesCount}`);
+      console.log("\n--- OVERALL MULTI-AGENT METRICS ---");
+      console.log(`Overall Precision:        ${(rep.summary.overallPrecision * 100).toFixed(1)}% (Target >= 70%: ${rep.summary.targetsMet.precisionTargetMet ? "PASS" : "FAIL"})`);
+      console.log(`Overall Recall:           ${(rep.summary.overallRecall * 100).toFixed(1)}% (Floor >= 70%: ${rep.summary.targetsMet.recallFloorMet ? "PASS" : "FAIL"})`);
+      console.log(`False Positive Rate:      ${(rep.summary.falsePositiveRate * 100).toFixed(1)}% (Target <= 30%: ${rep.summary.targetsMet.fprTargetMet ? "PASS" : "FAIL"})`);
+      console.log(`Clean PR FPs:             ${rep.summary.cleanPrFalsePositives} (Target <= 1.0: ${rep.summary.targetsMet.cleanPrFpTargetMet ? "PASS" : "FAIL"})`);
+      console.log(`Line Accuracy:            ${(rep.summary.lineAccuracy * 100).toFixed(1)}% (Target >= 95%: ${rep.summary.targetsMet.lineAccuracyTargetMet ? "PASS" : "FAIL"})`);
+
+      console.log("\n--- SPLIT COMPARISON & GENERALIZATION GAP ---");
+      console.log(`Dev Precision:            ${(rep.devSplit.multiAgent.precision * 100).toFixed(1)}%`);
+      console.log(`Test Precision:           ${(rep.testSplit.multiAgent.precision * 100).toFixed(1)}%`);
+      console.log(`Generalization Gap:       Precision Δ: ${rep.testSplit.generalizationGap.precisionGap}, Recall Δ: ${rep.testSplit.generalizationGap.recallGap}`);
+
+      console.log("\n--- VERIFICATION PIPELINE IMPACT ---");
+      console.log(`FPs Eliminated:           ${rep.verification.afterVerification.falsePositivesEliminated} (${rep.verification.afterVerification.reductionPercentage}% reduction)`);
+      console.log(`Post-Verification Prec:   ${(rep.verification.afterVerification.precision * 100).toFixed(1)}%`);
+      console.log("==========================================================================\n");
+    });
+  } else if (isVerify) {
+    runVerificationBenchmark(undefined, provider, { split, category, repo }).then((rep) => {
       console.log("\n=================================================================");
       console.log(" FINDING VERIFICATION & FALSE-POSITIVE REDUCTION REPORT (PHASE 5) ");
       console.log("=================================================================");
@@ -531,7 +831,7 @@ if (currentScript.endsWith("runner/index.js") || currentScript.endsWith("runner/
       console.log(`Precision:                ${(rep.afterVerification.precision * 100).toFixed(1)}% (Target: >= 70%)`);
       console.log(`Recall:                   ${(rep.afterVerification.recall * 100).toFixed(1)}%`);
       console.log(`False Positives Blocked:  ${rep.afterVerification.falsePositivesEliminated} (${rep.afterVerification.reductionPercentage}% reduction)`);
-      console.log("\n--- SAMPLE REJECTION REASONS (GOLD FOR PROMPT TUNING) ---");
+      console.log("\n--- SAMPLE REJECTION REASONS ---");
       for (const s of rep.rejectionsSample) {
         console.log(`• [${s.stage}] ${s.findingTitle}`);
         console.log(`  Reason: ${s.reason}`);
@@ -539,11 +839,11 @@ if (currentScript.endsWith("runner/index.js") || currentScript.endsWith("runner/
       console.log("=================================================================\n");
     });
   } else {
-    runBenchmark(undefined, provider, isMulti ? "multi" : "single").then((m) => {
+    runBenchmark(undefined, provider, isMulti ? "multi" : "single", { split, category, repo }).then((m) => {
       const title =
         m.mode === "multi"
-          ? "HISTORICAL BUG BENCHMARK: MULTI-AGENT RESULTS (PHASE 4)"
-          : "HISTORICAL BUG BENCHMARK: BASELINE RESULTS (PHASE 3)";
+          ? "HISTORICAL BUG BENCHMARK: MULTI-AGENT RESULTS"
+          : "HISTORICAL BUG BENCHMARK: BASELINE RESULTS";
       console.log("\n=======================================================");
       console.log(` ${title} `);
       console.log("=======================================================");

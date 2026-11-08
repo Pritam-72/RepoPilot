@@ -1,0 +1,198 @@
+{
+  "mode": "multi",
+  "totalCases": 12,
+  "bugCases": 10,
+  "controlCases": 2,
+  "truePositives": 10,
+  "falsePositives": 0,
+  "falseNegatives": 0,
+  "precision": 1,
+  "recall": 1,
+  "falsePositiveRate": 0,
+  "cleanPrFalsePositives": 0,
+  "lineAccuracy": 1,
+  "totalTokens": 46252,
+  "durationMs": 5,
+  "agentContributions": [
+    {
+      "agent": "bug-reviewer",
+      "category": "bug",
+      "casesReviewed": 12,
+      "bugsDetected": 0,
+      "falsePositives": 0,
+      "tokensConsumed": 7775,
+      "durationMs": 3
+    },
+    {
+      "agent": "security-reviewer",
+      "category": "security",
+      "casesReviewed": 12,
+      "bugsDetected": 3,
+      "falsePositives": 0,
+      "tokensConsumed": 7837,
+      "durationMs": 3
+    },
+    {
+      "agent": "error-handling-reviewer",
+      "category": "error-handling",
+      "casesReviewed": 12,
+      "bugsDetected": 3,
+      "falsePositives": 0,
+      "tokensConsumed": 7679,
+      "durationMs": 3
+    },
+    {
+      "agent": "test-coverage-reviewer",
+      "category": "test",
+      "casesReviewed": 12,
+      "bugsDetected": 2,
+      "falsePositives": 0,
+      "tokensConsumed": 7439,
+      "durationMs": 1
+    },
+    {
+      "agent": "performance-reviewer",
+      "category": "performance",
+      "casesReviewed": 12,
+      "bugsDetected": 2,
+      "falsePositives": 0,
+      "tokensConsumed": 7789,
+      "durationMs": 2
+    },
+    {
+      "agent": "quality-reviewer",
+      "category": "quality",
+      "casesReviewed": 12,
+      "bugsDetected": 0,
+      "falsePositives": 0,
+      "tokensConsumed": 7733,
+      "durationMs": 2
+    }
+  ],
+  "categoryBreakdown": {
+    "error-handling": {
+      "name": "error-handling",
+      "totalCases": 3,
+      "bugCases": 3,
+      "controlCases": 0,
+      "truePositives": 3,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "performance": {
+      "name": "performance",
+      "totalCases": 2,
+      "bugCases": 2,
+      "controlCases": 0,
+      "truePositives": 2,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "quality": {
+      "name": "quality",
+      "totalCases": 2,
+      "bugCases": 0,
+      "controlCases": 2,
+      "truePositives": 0,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "security": {
+      "name": "security",
+      "totalCases": 3,
+      "bugCases": 3,
+      "controlCases": 0,
+      "truePositives": 3,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "test": {
+      "name": "test",
+      "totalCases": 2,
+      "bugCases": 2,
+      "controlCases": 0,
+      "truePositives": 2,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    }
+  },
+  "splitBreakdown": {
+    "test": {
+      "name": "test",
+      "totalCases": 12,
+      "bugCases": 10,
+      "controlCases": 2,
+      "truePositives": 10,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    }
+  },
+  "repoBreakdown": {
+    "Pritam-72/RepoPilot": {
+      "name": "Pritam-72/RepoPilot",
+      "totalCases": 3,
+      "bugCases": 2,
+      "controlCases": 1,
+      "truePositives": 2,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "expressjs/express": {
+      "name": "expressjs/express",
+      "totalCases": 2,
+      "bugCases": 2,
+      "controlCases": 0,
+      "truePositives": 2,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "fastify/fastify": {
+      "name": "fastify/fastify",
+      "totalCases": 1,
+      "bugCases": 1,
+      "controlCases": 0,
+      "truePositives": 1,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "prisma/prisma": {
+      "name": "prisma/prisma",
+      "totalCases": 2,
+      "bugCases": 2,
+      "controlCases": 0,
+      "truePositives": 2,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "lodash/lodash": {
+      "name": "lodash/lodash",
+      "totalCases": 1,
+      "bugCases": 1,
+      "controlCases": 0,
+      "truePositives": 1,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    "facebook/react": {
+      "name": "facebook/react",
+      "totalCases": 3,
+      "bugCases": 2,
+      "controlCases": 1,
+      "truePositives": 2,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1
+    }
+  }
+}

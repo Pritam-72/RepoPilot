@@ -5,15 +5,19 @@ import {
   createRedisConnection,
   createReviewDeadLetterQueue,
 } from "./queues/review-queue.js";
-import { processReviewJob } from "./processors/test-job.processor.js";
+import { processReviewJob as processFullReviewJob } from "./processors/review-job.processor.js";
+import { processReviewJob as processTestReviewJob } from "./processors/test-job.processor.js";
 import { logger } from "@acr/observability";
 
 export function createReviewWorker(connection = createRedisConnection()) {
   const dlq = createReviewDeadLetterQueue(connection);
+  const isTestProcessor = process.env["USE_TEST_PROCESSOR"] === "true";
+  const processor = isTestProcessor ? processTestReviewJob : processFullReviewJob;
+
   const worker = new Worker(
     REVIEW_QUEUE_NAME,
     async (job) => {
-      return processReviewJob(job);
+      return processor(job);
     },
     {
       connection,

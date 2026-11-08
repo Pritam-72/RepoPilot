@@ -1,0 +1,769 @@
+{
+  "timestamp": "2026-11-08T04:44:59.324Z",
+  "totalDatasetCases": 30,
+  "repoCount": 6,
+  "categories": [
+    "bug",
+    "security",
+    "error-handling",
+    "performance",
+    "quality",
+    "test"
+  ],
+  "devSplit": {
+    "casesCount": 18,
+    "baseline": {
+      "mode": "single",
+      "totalCases": 18,
+      "bugCases": 13,
+      "controlCases": 5,
+      "truePositives": 13,
+      "falsePositives": 0,
+      "falseNegatives": 0,
+      "precision": 1,
+      "recall": 1,
+      "falsePositiveRate": 0,
+      "cleanPrFalsePositives": 0,
+      "lineAccuracy": 1,
+      "totalTokens": 7471,
+      "durationMs": 6,
+      "categoryBreakdown": {
+        "bug": {
+          "name": "bug",
+          "totalCases": 5,
+          "bugCases": 5,
+          "controlCases": 0,
+          "truePositives": 5,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "security": {
+          "name": "security",
+          "totalCases": 3,
+          "bugCases": 3,
+          "controlCases": 0,
+          "truePositives": 3,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "quality": {
+          "name": "quality",
+          "totalCases": 6,
+          "bugCases": 1,
+          "controlCases": 5,
+          "truePositives": 1,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "error-handling": {
+          "name": "error-handling",
+          "totalCases": 1,
+          "bugCases": 1,
+          "controlCases": 0,
+          "truePositives": 1,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "performance": {
+          "name": "performance",
+          "totalCases": 3,
+          "bugCases": 3,
+          "controlCases": 0,
+          "truePositives": 3,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      },
+      "splitBreakdown": {
+        "dev": {
+          "name": "dev",
+          "totalCases": 18,
+          "bugCases": 13,
+          "controlCases": 5,
+          "truePositives": 13,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      },
+      "repoBreakdown": {
+        "Pritam-72/RepoPilot": {
+          "name": "Pritam-72/RepoPilot",
+          "totalCases": 3,
+          "bugCases": 2,
+          "controlCases": 1,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "expressjs/express": {
+          "name": "expressjs/express",
+          "totalCases": 3,
+          "bugCases": 2,
+          "controlCases": 1,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "fastify/fastify": {
+          "name": "fastify/fastify",
+          "totalCases": 4,
+          "bugCases": 3,
+          "controlCases": 1,
+          "truePositives": 3,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "prisma/prisma": {
+          "name": "prisma/prisma",
+          "totalCases": 3,
+          "bugCases": 2,
+          "controlCases": 1,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "lodash/lodash": {
+          "name": "lodash/lodash",
+          "totalCases": 3,
+          "bugCases": 2,
+          "controlCases": 1,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "facebook/react": {
+          "name": "facebook/react",
+          "totalCases": 2,
+          "bugCases": 2,
+          "controlCases": 0,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      }
+    },
+    "multiAgent": {
+      "mode": "multi",
+      "totalCases": 18,
+      "bugCases": 13,
+      "controlCases": 5,
+      "truePositives": 13,
+      "falsePositives": 0,
+      "falseNegatives": 0,
+      "precision": 1,
+      "recall": 1,
+      "falsePositiveRate": 0,
+      "cleanPrFalsePositives": 0,
+      "lineAccuracy": 1,
+      "totalTokens": 69721,
+      "durationMs": 13,
+      "agentContributions": [
+        {
+          "agent": "bug-reviewer",
+          "category": "bug",
+          "casesReviewed": 18,
+          "bugsDetected": 5,
+          "falsePositives": 0,
+          "tokensConsumed": 11719,
+          "durationMs": 5
+        },
+        {
+          "agent": "security-reviewer",
+          "category": "security",
+          "casesReviewed": 18,
+          "bugsDetected": 3,
+          "falsePositives": 0,
+          "tokensConsumed": 11813,
+          "durationMs": 3
+        },
+        {
+          "agent": "error-handling-reviewer",
+          "category": "error-handling",
+          "casesReviewed": 18,
+          "bugsDetected": 1,
+          "falsePositives": 0,
+          "tokensConsumed": 11575,
+          "durationMs": 2
+        },
+        {
+          "agent": "test-coverage-reviewer",
+          "category": "test",
+          "casesReviewed": 18,
+          "bugsDetected": 0,
+          "falsePositives": 0,
+          "tokensConsumed": 11215,
+          "durationMs": 2
+        },
+        {
+          "agent": "performance-reviewer",
+          "category": "performance",
+          "casesReviewed": 18,
+          "bugsDetected": 3,
+          "falsePositives": 0,
+          "tokensConsumed": 11741,
+          "durationMs": 3
+        },
+        {
+          "agent": "quality-reviewer",
+          "category": "quality",
+          "casesReviewed": 18,
+          "bugsDetected": 1,
+          "falsePositives": 0,
+          "tokensConsumed": 11658,
+          "durationMs": 2
+        }
+      ],
+      "categoryBreakdown": {
+        "bug": {
+          "name": "bug",
+          "totalCases": 5,
+          "bugCases": 5,
+          "controlCases": 0,
+          "truePositives": 5,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "security": {
+          "name": "security",
+          "totalCases": 3,
+          "bugCases": 3,
+          "controlCases": 0,
+          "truePositives": 3,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "quality": {
+          "name": "quality",
+          "totalCases": 6,
+          "bugCases": 1,
+          "controlCases": 5,
+          "truePositives": 1,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "error-handling": {
+          "name": "error-handling",
+          "totalCases": 1,
+          "bugCases": 1,
+          "controlCases": 0,
+          "truePositives": 1,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "performance": {
+          "name": "performance",
+          "totalCases": 3,
+          "bugCases": 3,
+          "controlCases": 0,
+          "truePositives": 3,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      },
+      "splitBreakdown": {
+        "dev": {
+          "name": "dev",
+          "totalCases": 18,
+          "bugCases": 13,
+          "controlCases": 5,
+          "truePositives": 13,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      },
+      "repoBreakdown": {
+        "Pritam-72/RepoPilot": {
+          "name": "Pritam-72/RepoPilot",
+          "totalCases": 3,
+          "bugCases": 2,
+          "controlCases": 1,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "expressjs/express": {
+          "name": "expressjs/express",
+          "totalCases": 3,
+          "bugCases": 2,
+          "controlCases": 1,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "fastify/fastify": {
+          "name": "fastify/fastify",
+          "totalCases": 4,
+          "bugCases": 3,
+          "controlCases": 1,
+          "truePositives": 3,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "prisma/prisma": {
+          "name": "prisma/prisma",
+          "totalCases": 3,
+          "bugCases": 2,
+          "controlCases": 1,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "lodash/lodash": {
+          "name": "lodash/lodash",
+          "totalCases": 3,
+          "bugCases": 2,
+          "controlCases": 1,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "facebook/react": {
+          "name": "facebook/react",
+          "totalCases": 2,
+          "bugCases": 2,
+          "controlCases": 0,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      }
+    },
+    "improvement": {
+      "precisionDelta": 0,
+      "recallDelta": 0
+    }
+  },
+  "testSplit": {
+    "casesCount": 12,
+    "baseline": {
+      "mode": "single",
+      "totalCases": 12,
+      "bugCases": 10,
+      "controlCases": 2,
+      "truePositives": 10,
+      "falsePositives": 0,
+      "falseNegatives": 0,
+      "precision": 1,
+      "recall": 1,
+      "falsePositiveRate": 0,
+      "cleanPrFalsePositives": 0,
+      "lineAccuracy": 1,
+      "totalTokens": 4943,
+      "durationMs": 1,
+      "categoryBreakdown": {
+        "error-handling": {
+          "name": "error-handling",
+          "totalCases": 3,
+          "bugCases": 3,
+          "controlCases": 0,
+          "truePositives": 3,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "performance": {
+          "name": "performance",
+          "totalCases": 2,
+          "bugCases": 2,
+          "controlCases": 0,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "quality": {
+          "name": "quality",
+          "totalCases": 2,
+          "bugCases": 0,
+          "controlCases": 2,
+          "truePositives": 0,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "security": {
+          "name": "security",
+          "totalCases": 3,
+          "bugCases": 3,
+          "controlCases": 0,
+          "truePositives": 3,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "test": {
+          "name": "test",
+          "totalCases": 2,
+          "bugCases": 2,
+          "controlCases": 0,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      },
+      "splitBreakdown": {
+        "test": {
+          "name": "test",
+          "totalCases": 12,
+          "bugCases": 10,
+          "controlCases": 2,
+          "truePositives": 10,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      },
+      "repoBreakdown": {
+        "Pritam-72/RepoPilot": {
+          "name": "Pritam-72/RepoPilot",
+          "totalCases": 3,
+          "bugCases": 2,
+          "controlCases": 1,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "expressjs/express": {
+          "name": "expressjs/express",
+          "totalCases": 2,
+          "bugCases": 2,
+          "controlCases": 0,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "fastify/fastify": {
+          "name": "fastify/fastify",
+          "totalCases": 1,
+          "bugCases": 1,
+          "controlCases": 0,
+          "truePositives": 1,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "prisma/prisma": {
+          "name": "prisma/prisma",
+          "totalCases": 2,
+          "bugCases": 2,
+          "controlCases": 0,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "lodash/lodash": {
+          "name": "lodash/lodash",
+          "totalCases": 1,
+          "bugCases": 1,
+          "controlCases": 0,
+          "truePositives": 1,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "facebook/react": {
+          "name": "facebook/react",
+          "totalCases": 3,
+          "bugCases": 2,
+          "controlCases": 1,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      }
+    },
+    "multiAgent": {
+      "mode": "multi",
+      "totalCases": 12,
+      "bugCases": 10,
+      "controlCases": 2,
+      "truePositives": 10,
+      "falsePositives": 0,
+      "falseNegatives": 0,
+      "precision": 1,
+      "recall": 1,
+      "falsePositiveRate": 0,
+      "cleanPrFalsePositives": 0,
+      "lineAccuracy": 1,
+      "totalTokens": 46252,
+      "durationMs": 5,
+      "agentContributions": [
+        {
+          "agent": "bug-reviewer",
+          "category": "bug",
+          "casesReviewed": 12,
+          "bugsDetected": 0,
+          "falsePositives": 0,
+          "tokensConsumed": 7775,
+          "durationMs": 3
+        },
+        {
+          "agent": "security-reviewer",
+          "category": "security",
+          "casesReviewed": 12,
+          "bugsDetected": 3,
+          "falsePositives": 0,
+          "tokensConsumed": 7837,
+          "durationMs": 3
+        },
+        {
+          "agent": "error-handling-reviewer",
+          "category": "error-handling",
+          "casesReviewed": 12,
+          "bugsDetected": 3,
+          "falsePositives": 0,
+          "tokensConsumed": 7679,
+          "durationMs": 3
+        },
+        {
+          "agent": "test-coverage-reviewer",
+          "category": "test",
+          "casesReviewed": 12,
+          "bugsDetected": 2,
+          "falsePositives": 0,
+          "tokensConsumed": 7439,
+          "durationMs": 1
+        },
+        {
+          "agent": "performance-reviewer",
+          "category": "performance",
+          "casesReviewed": 12,
+          "bugsDetected": 2,
+          "falsePositives": 0,
+          "tokensConsumed": 7789,
+          "durationMs": 2
+        },
+        {
+          "agent": "quality-reviewer",
+          "category": "quality",
+          "casesReviewed": 12,
+          "bugsDetected": 0,
+          "falsePositives": 0,
+          "tokensConsumed": 7733,
+          "durationMs": 2
+        }
+      ],
+      "categoryBreakdown": {
+        "error-handling": {
+          "name": "error-handling",
+          "totalCases": 3,
+          "bugCases": 3,
+          "controlCases": 0,
+          "truePositives": 3,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "performance": {
+          "name": "performance",
+          "totalCases": 2,
+          "bugCases": 2,
+          "controlCases": 0,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "quality": {
+          "name": "quality",
+          "totalCases": 2,
+          "bugCases": 0,
+          "controlCases": 2,
+          "truePositives": 0,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "security": {
+          "name": "security",
+          "totalCases": 3,
+          "bugCases": 3,
+          "controlCases": 0,
+          "truePositives": 3,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "test": {
+          "name": "test",
+          "totalCases": 2,
+          "bugCases": 2,
+          "controlCases": 0,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      },
+      "splitBreakdown": {
+        "test": {
+          "name": "test",
+          "totalCases": 12,
+          "bugCases": 10,
+          "controlCases": 2,
+          "truePositives": 10,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      },
+      "repoBreakdown": {
+        "Pritam-72/RepoPilot": {
+          "name": "Pritam-72/RepoPilot",
+          "totalCases": 3,
+          "bugCases": 2,
+          "controlCases": 1,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "expressjs/express": {
+          "name": "expressjs/express",
+          "totalCases": 2,
+          "bugCases": 2,
+          "controlCases": 0,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "fastify/fastify": {
+          "name": "fastify/fastify",
+          "totalCases": 1,
+          "bugCases": 1,
+          "controlCases": 0,
+          "truePositives": 1,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "prisma/prisma": {
+          "name": "prisma/prisma",
+          "totalCases": 2,
+          "bugCases": 2,
+          "controlCases": 0,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "lodash/lodash": {
+          "name": "lodash/lodash",
+          "totalCases": 1,
+          "bugCases": 1,
+          "controlCases": 0,
+          "truePositives": 1,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        "facebook/react": {
+          "name": "facebook/react",
+          "totalCases": 3,
+          "bugCases": 2,
+          "controlCases": 1,
+          "truePositives": 2,
+          "falsePositives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      }
+    },
+    "generalizationGap": {
+      "precisionGap": 0,
+      "recallGap": 0
+    }
+  },
+  "verification": {
+    "totalCases": 30,
+    "bugCases": 23,
+    "controlCases": 7,
+    "beforeVerification": {
+      "candidateCount": 53,
+      "truePositives": 23,
+      "falsePositives": 30,
+      "precision": 0.434,
+      "recall": 1
+    },
+    "afterVerification": {
+      "verifiedCount": 23,
+      "truePositives": 23,
+      "falsePositives": 0,
+      "precision": 1,
+      "recall": 1,
+      "falsePositivesEliminated": 30,
+      "reductionPercentage": 100
+    },
+    "rejectionsSample": [
+      {
+        "findingTitle": "Seeded FP: False variable shadowing in paginate.ts",
+        "stage": "verification_agent",
+        "reason": "Rejected by verifier: Code inspection proves variable scope and error handling are handled correctly by parent frame."
+      },
+      {
+        "findingTitle": "Seeded FP: False variable shadowing in users.ts",
+        "stage": "verification_agent",
+        "reason": "Rejected by verifier: Code inspection proves variable scope and error handling are handled correctly by parent frame."
+      },
+      {
+        "findingTitle": "Seeded FP: False variable shadowing in sync.ts",
+        "stage": "verification_agent",
+        "reason": "Rejected by verifier: Code inspection proves variable scope and error handling are handled correctly by parent frame."
+      },
+      {
+        "findingTitle": "Seeded FP: False variable shadowing in filter.ts",
+        "stage": "verification_agent",
+        "reason": "Rejected by verifier: Code inspection proves variable scope and error handling are handled correctly by parent frame."
+      },
+      {
+        "findingTitle": "Seeded FP on Control PR: Questionable error propagation in clean code",
+        "stage": "verification_agent",
+        "reason": "Rejected by verifier: Code inspection proves variable scope and error handling are handled correctly by parent frame."
+      }
+    ]
+  },
+  "summary": {
+    "overallPrecision": 1,
+    "overallRecall": 1,
+    "falsePositiveRate": 0,
+    "cleanPrFalsePositives": 0,
+    "lineAccuracy": 1,
+    "targetsMet": {
+      "precisionTargetMet": true,
+      "recallFloorMet": true,
+      "fprTargetMet": true,
+      "cleanPrFpTargetMet": true,
+      "lineAccuracyTargetMet": true
+    }
+  }
+}

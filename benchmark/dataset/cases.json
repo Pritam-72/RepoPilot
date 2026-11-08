@@ -151,8 +151,650 @@
     "createdAt": "2026-11-04T14:30:00.000Z",
     "fileContext": {
       "path": "src/types/user.ts",
-      "patch": "@@ -1,3 +1,4 @@\n export interface UserProfile {\n   id: string;\n+  displayName: string;\n }",
-      "content": "export interface UserProfile {\n  id: string;\n  displayName: string;\n}\n"
+      "patch": "@@ -1,4 +1,4 @@\n export interface UserProfile {\n   id: string;\n-  metadata: any;\n+  metadata: Record<string, unknown>;\n }",
+      "content": "export interface UserProfile {\n  id: string;\n  metadata: Record<string, unknown>;\n}\n"
+    }
+  },
+  {
+    "id": "express-001-cors-wildcard",
+    "repo": "expressjs/express",
+    "language": "typescript",
+    "category": "security",
+    "baseSha": "exp10001",
+    "introducingSha": "exp10002",
+    "fixSha": "exp10003",
+    "description": "Permissive regex origin join allows arbitrary subdomain or origin reflection bypass",
+    "affectedFiles": ["lib/middleware/cors.ts"],
+    "expectedLocations": [
+      {
+        "file": "lib/middleware/cors.ts",
+        "lineStart": 2,
+        "lineEnd": 3
+      }
+    ],
+    "fixSummary": "Validate origins against exact Set or parse URL origin rather than loose RegExp join",
+    "split": "dev",
+    "isControl": false,
+    "verifiedBy": "SecurityTeam",
+    "createdAt": "2026-11-05T09:00:00.000Z",
+    "fileContext": {
+      "path": "lib/middleware/cors.ts",
+      "patch": "@@ -1,4 +1,4 @@\n export function validateOrigin(origin: string, allowedOrigins: string[]): boolean {\n-  return allowedOrigins.includes(origin);\n+  const regex = new RegExp(allowedOrigins.join(\"|\"));\n+  return regex.test(origin);\n }",
+      "content": "export function validateOrigin(origin: string, allowedOrigins: string[]): boolean {\n  const regex = new RegExp(allowedOrigins.join(\"|\"));\n  return regex.test(origin);\n}\n"
+    }
+  },
+  {
+    "id": "express-002-async-error-leak",
+    "repo": "expressjs/express",
+    "language": "typescript",
+    "category": "error-handling",
+    "baseSha": "exp20001",
+    "introducingSha": "exp20002",
+    "fixSha": "exp20003",
+    "description": "Async route handler does not forward rejected promises to next() causing hung connections",
+    "affectedFiles": ["lib/router/route.ts"],
+    "expectedLocations": [
+      {
+        "file": "lib/router/route.ts",
+        "lineStart": 2,
+        "lineEnd": 3
+      }
+    ],
+    "fixSummary": "Add .catch(next) or wrap in try/catch to deliver error to Express error pipeline",
+    "split": "dev",
+    "isControl": false,
+    "verifiedBy": "QAEngineer",
+    "createdAt": "2026-11-05T09:30:00.000Z",
+    "fileContext": {
+      "path": "lib/router/route.ts",
+      "patch": "@@ -1,4 +1,4 @@\n export function asyncRouteHandler(req: any, res: any, next: (err?: any) => void) {\n-  fetchUserData(req.params.id).then((d) => res.json(d)).catch(next);\n+  fetchUserData(req.params.id).then((data) => res.json(data));\n }",
+      "content": "export function asyncRouteHandler(req: any, res: any, next: (err?: any) => void) {\n  fetchUserData(req.params.id).then((data) => res.json(data));\n}\n"
+    }
+  },
+  {
+    "id": "express-003-clean-router-refactor",
+    "repo": "expressjs/express",
+    "language": "typescript",
+    "category": "quality",
+    "baseSha": "exp30001",
+    "introducingSha": "exp30002",
+    "fixSha": "exp30003",
+    "description": "Clean modular layer initialization in Express router to verify false positive suppression",
+    "affectedFiles": ["lib/router/layer.ts"],
+    "expectedLocations": [],
+    "fixSummary": "None - clean control case",
+    "split": "dev",
+    "isControl": true,
+    "verifiedBy": "Maintainer",
+    "createdAt": "2026-11-05T10:00:00.000Z",
+    "fileContext": {
+      "path": "lib/router/layer.ts",
+      "patch": "@@ -1,4 +1,4 @@\n export class Layer {\n-  name = 'layer';\n+  name: string;\n+  constructor(path: string, options: Record<string, unknown> = {}) {\n+    this.name = String(options[\"name\"] || \"<anonymous>\");\n+  }\n }",
+      "content": "export class Layer {\n  name: string;\n  constructor(path: string, options: Record<string, unknown> = {}) {\n    this.name = String(options[\"name\"] || \"<anonymous>\");\n  }\n}\n"
+    }
+  },
+  {
+    "id": "express-004-prototype-pollution",
+    "repo": "expressjs/express",
+    "language": "typescript",
+    "category": "security",
+    "baseSha": "exp40001",
+    "introducingSha": "exp40002",
+    "fixSha": "exp40003",
+    "description": "Recursive object merge allows __proto__ property injection causing prototype pollution",
+    "affectedFiles": ["lib/utils/merge.ts"],
+    "expectedLocations": [
+      {
+        "file": "lib/utils/merge.ts",
+        "lineStart": 4,
+        "lineEnd": 5
+      }
+    ],
+    "fixSummary": "Block key assignment when key is __proto__, constructor, or prototype",
+    "split": "test",
+    "isControl": false,
+    "verifiedBy": "SecurityTeam",
+    "createdAt": "2026-11-05T10:30:00.000Z",
+    "fileContext": {
+      "path": "lib/utils/merge.ts",
+      "patch": "@@ -1,6 +1,8 @@\n export function deepMerge(target: any, source: any): any {\n   for (const key of Object.keys(source)) {\n+    if (typeof source[key] === \"object\" && source[key] !== null) {\n+      target[key] = deepMerge(target[key] || {}, source[key]);\n+    } else {\n       target[key] = source[key];\n+    }\n   }\n   return target;\n }",
+      "content": "export function deepMerge(target: any, source: any): any {\n  for (const key of Object.keys(source)) {\n    if (typeof source[key] === \"object\" && source[key] !== null) {\n      target[key] = deepMerge(target[key] || {}, source[key]);\n    } else {\n      target[key] = source[key];\n    }\n  }\n  return target;\n}\n"
+    }
+  },
+  {
+    "id": "express-005-missing-unit-test-assertions",
+    "repo": "expressjs/express",
+    "language": "typescript",
+    "category": "test",
+    "baseSha": "exp50001",
+    "introducingSha": "exp50002",
+    "fixSha": "exp50003",
+    "description": "Async integration test executes route without asserting HTTP response status or body",
+    "affectedFiles": ["test/route-execution.test.ts"],
+    "expectedLocations": [
+      {
+        "file": "test/route-execution.test.ts",
+        "lineStart": 3,
+        "lineEnd": 4
+      }
+    ],
+    "fixSummary": "Add assertion expect(response.statusCode).toBe(200)",
+    "split": "test",
+    "isControl": false,
+    "verifiedBy": "QAEngineer",
+    "createdAt": "2026-11-05T11:00:00.000Z",
+    "fileContext": {
+      "path": "test/route-execution.test.ts",
+      "patch": "@@ -1,5 +1,5 @@\n describe(\"Route Dispatcher\", () => {\n   it(\"executes middleware chain in sequence\", async () => {\n     const route = createMockRoute();\n-    const res = await route.dispatch({ url: \"/test\" }, {});\n-    expect(res.status).toBe(200);\n+    await route.dispatch({ url: \"/test\" }, {});\n   });\n });",
+      "content": "describe(\"Route Dispatcher\", () => {\n  it(\"executes middleware chain in sequence\", async () => {\n    const route = createMockRoute();\n    await route.dispatch({ url: \"/test\" }, {});\n  });\n});\n"
+    }
+  },
+  {
+    "id": "fastify-001-content-type-regex-dos",
+    "repo": "fastify/fastify",
+    "language": "typescript",
+    "category": "performance",
+    "baseSha": "fas10001",
+    "introducingSha": "fas10002",
+    "fixSha": "fas10003",
+    "description": "Catastrophic regular expression backtracking in Content-Type parser causes CPU starvation",
+    "affectedFiles": ["lib/contentTypeParser.ts"],
+    "expectedLocations": [
+      {
+        "file": "lib/contentTypeParser.ts",
+        "lineStart": 2,
+        "lineEnd": 3
+      }
+    ],
+    "fixSummary": "Replace nested quantifier regex with deterministic state machine or linear search",
+    "split": "dev",
+    "isControl": false,
+    "verifiedBy": "PerfTeam",
+    "createdAt": "2026-11-05T11:30:00.000Z",
+    "fileContext": {
+      "path": "lib/contentTypeParser.ts",
+      "patch": "@@ -1,4 +1,4 @@\n export function parseContentType(header: string): string {\n-  return header.split(\";\")[0]?.trim() || \"application/octet-stream\";\n+  const mimePattern = /^(\\s*[\\w\\-\\+]+\\/[\\w\\-\\+]+(\\s*;\\s*[\\w\\-\\+]+=\\s*[^;\\s]+)*\\s*)+$/;\n+  return mimePattern.test(header) ? header.trim() : \"application/octet-stream\";\n }",
+      "content": "export function parseContentType(header: string): string {\n  const mimePattern = /^(\\s*[\\w\\-\\+]+\\/[\\w\\-\\+]+(\\s*;\\s*[\\w\\-\\+]+=\\s*[^;\\s]+)*\\s*)+$/;\n  return mimePattern.test(header) ? header.trim() : \"application/octet-stream\";\n}\n"
+    }
+  },
+  {
+    "id": "fastify-002-schema-coercion-bypass",
+    "repo": "fastify/fastify",
+    "language": "typescript",
+    "category": "bug",
+    "baseSha": "fas20001",
+    "introducingSha": "fas20002",
+    "fixSha": "fas20003",
+    "description": "Off-by-one boundary validation rejects offset=0 which is the standard 0-indexed initial page",
+    "affectedFiles": ["lib/validation/number.ts"],
+    "expectedLocations": [
+      {
+        "file": "lib/validation/number.ts",
+        "lineStart": 2,
+        "lineEnd": 2
+      }
+    ],
+    "fixSummary": "Allow offset >= 0 by replacing offset <= 0 with offset < 0",
+    "split": "dev",
+    "isControl": false,
+    "verifiedBy": "CoreDev",
+    "createdAt": "2026-11-05T12:00:00.000Z",
+    "fileContext": {
+      "path": "lib/validation/number.ts",
+      "patch": "@@ -1,4 +1,4 @@\n export function validatePaginationRange(offset: number, limit: number, total: number): boolean {\n-  if (offset < 0 || limit <= 0) return false;\n+  if (offset <= 0 || limit <= 0) return false;\n   return offset + limit <= total;\n }",
+      "content": "export function validatePaginationRange(offset: number, limit: number, total: number): boolean {\n  if (offset <= 0 || limit <= 0) return false;\n  return offset + limit <= total;\n}\n"
+    }
+  },
+  {
+    "id": "fastify-003-clean-plugin-registration",
+    "repo": "fastify/fastify",
+    "language": "typescript",
+    "category": "quality",
+    "baseSha": "fas30001",
+    "introducingSha": "fas30002",
+    "fixSha": "fas30003",
+    "description": "Clean plugin symbol metadata registration pattern to test false positive suppression",
+    "affectedFiles": ["lib/pluginHelper.ts"],
+    "expectedLocations": [],
+    "fixSummary": "None - clean control case",
+    "split": "dev",
+    "isControl": true,
+    "verifiedBy": "Maintainer",
+    "createdAt": "2026-11-05T12:30:00.000Z",
+    "fileContext": {
+      "path": "lib/pluginHelper.ts",
+      "patch": "@@ -1,4 +1,4 @@\n export function registerPluginMeta(fn: Function, meta: { name: string; version: string }): Function {\n   Object.defineProperty(fn, Symbol.for(\"fastify.display-name\"), { value: meta.name, configurable: true });\n   return fn;\n }",
+      "content": "export function registerPluginMeta(fn: Function, meta: { name: string; version: string }): Function {\n  Object.defineProperty(fn, Symbol.for(\"fastify.display-name\"), { value: meta.name, configurable: true });\n  return fn;\n}\n"
+    }
+  },
+  {
+    "id": "fastify-004-unhandled-hook-rejection",
+    "repo": "fastify/fastify",
+    "language": "typescript",
+    "category": "error-handling",
+    "baseSha": "fas40001",
+    "introducingSha": "fas40002",
+    "fixSha": "fas40003",
+    "description": "Async preHandler hook called without await allows rejected promises to escape unhandled",
+    "affectedFiles": ["lib/hooks/onRequest.ts"],
+    "expectedLocations": [
+      {
+        "file": "lib/hooks/onRequest.ts",
+        "lineStart": 3,
+        "lineEnd": 3
+      }
+    ],
+    "fixSummary": "Add await before hook execution inside loop",
+    "split": "test",
+    "isControl": false,
+    "verifiedBy": "NodeSecurity",
+    "createdAt": "2026-11-05T13:00:00.000Z",
+    "fileContext": {
+      "path": "lib/hooks/onRequest.ts",
+      "patch": "@@ -1,5 +1,5 @@\n export async function executePreHandler(request: any, reply: any, hooks: Function[]) {\n   for (const hook of hooks) {\n-    await hook(request, reply);\n+    hook(request, reply);\n   }\n }",
+      "content": "export async function executePreHandler(request: any, reply: any, hooks: Function[]) {\n  for (const hook of hooks) {\n    hook(request, reply);\n  }\n}\n"
+    }
+  },
+  {
+    "id": "fastify-005-dead-code-branch",
+    "repo": "fastify/fastify",
+    "language": "typescript",
+    "category": "quality",
+    "baseSha": "fas50001",
+    "introducingSha": "fas50002",
+    "fixSha": "fas50003",
+    "description": "Unreachable event emission statement placed immediately after return statement",
+    "affectedFiles": ["lib/reply/send.ts"],
+    "expectedLocations": [
+      {
+        "file": "lib/reply/send.ts",
+        "lineStart": 5,
+        "lineEnd": 6
+      }
+    ],
+    "fixSummary": "Remove unreachable dead code or trigger emit before return",
+    "split": "dev",
+    "isControl": false,
+    "verifiedBy": "RefactorTeam",
+    "createdAt": "2026-11-05T13:30:00.000Z",
+    "fileContext": {
+      "path": "lib/reply/send.ts",
+      "patch": "@@ -1,5 +1,7 @@\n export function finalizeReply(reply: any, payload: unknown) {\n   if (reply.sent) return;\n   reply.sent = true;\n   reply.raw.end(payload);\n+  return;\n+  reply.emit(\"finish\");\n }",
+      "content": "export function finalizeReply(reply: any, payload: unknown) {\n  if (reply.sent) return;\n  reply.sent = true;\n  reply.raw.end(payload);\n  return;\n  reply.emit(\"finish\");\n}\n"
+    }
+  },
+  {
+    "id": "prisma-001-connection-leak",
+    "repo": "prisma/prisma",
+    "language": "typescript",
+    "category": "performance",
+    "baseSha": "pri10001",
+    "introducingSha": "pri10002",
+    "fixSha": "pri10003",
+    "description": "Database connection from pool is not released in finally block causing connection pool exhaustion",
+    "affectedFiles": ["packages/client/src/transaction.ts"],
+    "expectedLocations": [
+      {
+        "file": "packages/client/src/transaction.ts",
+        "lineStart": 3,
+        "lineEnd": 4
+      }
+    ],
+    "fixSummary": "Wrap in try/finally block and call conn.release() inside finally",
+    "split": "dev",
+    "isControl": false,
+    "verifiedBy": "DatabaseTeam",
+    "createdAt": "2026-11-05T14:00:00.000Z",
+    "fileContext": {
+      "path": "packages/client/src/transaction.ts",
+      "patch": "@@ -1,5 +1,5 @@\n export async function executeInTransaction(pool: any, fn: Function): Promise<any> {\n   const conn = await pool.getConnection();\n-  try { return await fn(conn); } finally { conn.release(); }\n+  const res = await fn(conn);\n+  return res;\n }",
+      "content": "export async function executeInTransaction(pool: any, fn: Function): Promise<any> {\n  const conn = await pool.getConnection();\n  const res = await fn(conn);\n  return res;\n}\n"
+    }
+  },
+  {
+    "id": "prisma-002-null-pointer-dereference",
+    "repo": "prisma/prisma",
+    "language": "typescript",
+    "category": "bug",
+    "baseSha": "pri20001",
+    "introducingSha": "pri20002",
+    "fixSha": "pri20003",
+    "description": "Directly dereferencing user.tenant.id on nullable findUnique result causes TypeError: Cannot read property of null",
+    "affectedFiles": ["packages/client/src/runtime/resolveUser.ts"],
+    "expectedLocations": [
+      {
+        "file": "packages/client/src/runtime/resolveUser.ts",
+        "lineStart": 3,
+        "lineEnd": 3
+      }
+    ],
+    "fixSummary": "Add null check if (!user?.tenant) throw new Error('Tenant not found'); return user.tenant.id;",
+    "split": "dev",
+    "isControl": false,
+    "verifiedBy": "CoreTeam",
+    "createdAt": "2026-11-05T14:30:00.000Z",
+    "fileContext": {
+      "path": "packages/client/src/runtime/resolveUser.ts",
+      "patch": "@@ -1,4 +1,4 @@\n export async function getTenantId(client: any, userId: string): Promise<string> {\n   const user = await client.user.findUnique({ where: { id: userId } });\n-  return user?.tenant?.id ?? \"default\";\n+  return user.tenant.id;\n }",
+      "content": "export async function getTenantId(client: any, userId: string): Promise<string> {\n  const user = await client.user.findUnique({ where: { id: userId } });\n  return user.tenant.id;\n}\n"
+    }
+  },
+  {
+    "id": "prisma-003-clean-schema-migration",
+    "repo": "prisma/prisma",
+    "language": "typescript",
+    "category": "quality",
+    "baseSha": "pri30001",
+    "introducingSha": "pri30002",
+    "fixSha": "pri30003",
+    "description": "Clean enum set difference algorithm for schema migrations to verify false positive suppression",
+    "affectedFiles": ["packages/migrate/src/schemaDiff.ts"],
+    "expectedLocations": [],
+    "fixSummary": "None - clean control case",
+    "split": "dev",
+    "isControl": true,
+    "verifiedBy": "Maintainer",
+    "createdAt": "2026-11-05T15:00:00.000Z",
+    "fileContext": {
+      "path": "packages/migrate/src/schemaDiff.ts",
+      "patch": "@@ -1,4 +1,8 @@\n export function diffEnums(prev: string[], next: string[]): { added: string[]; removed: string[] } {\n+  const nextSet = new Set(next);\n+  const prevSet = new Set(prev);\n+  return {\n+    added: next.filter((x) => !prevSet.has(x)),\n+    removed: prev.filter((x) => !nextSet.has(x)),\n+  };\n }",
+      "content": "export function diffEnums(prev: string[], next: string[]): { added: string[]; removed: string[] } {\n  const nextSet = new Set(next);\n  const prevSet = new Set(prev);\n  return {\n    added: next.filter((x) => !prevSet.has(x)),\n    removed: prev.filter((x) => !nextSet.has(x)),\n  };\n}\n"
+    }
+  },
+  {
+    "id": "prisma-004-nested-relation-nplusone",
+    "repo": "prisma/prisma",
+    "language": "typescript",
+    "category": "performance",
+    "baseSha": "pri40001",
+    "introducingSha": "pri40002",
+    "fixSha": "pri40003",
+    "description": "Sequential database queries inside loop over posts introduces N+1 performance bottleneck",
+    "affectedFiles": ["packages/client/src/loaders/batchLoader.ts"],
+    "expectedLocations": [
+      {
+        "file": "packages/client/src/loaders/batchLoader.ts",
+        "lineStart": 4,
+        "lineEnd": 4
+      }
+    ],
+    "fixSummary": "Batch fetch related authors using where: { id: { in: authorIds } } outside the loop",
+    "split": "test",
+    "isControl": false,
+    "verifiedBy": "DatabaseTeam",
+    "createdAt": "2026-11-05T15:30:00.000Z",
+    "fileContext": {
+      "path": "packages/client/src/loaders/batchLoader.ts",
+      "patch": "@@ -1,5 +1,6 @@\n export async function loadPostsWithAuthors(db: any, postIds: string[]) {\n   const posts = await db.post.findMany({ where: { id: { in: postIds } } });\n+  for (const post of posts) {\n+    post.author = await db.user.findUnique({ where: { id: post.authorId } });\n+  }\n   return posts;\n }",
+      "content": "export async function loadPostsWithAuthors(db: any, postIds: string[]) {\n  const posts = await db.post.findMany({ where: { id: { in: postIds } } });\n  for (const post of posts) {\n    post.author = await db.user.findUnique({ where: { id: post.authorId } });\n  }\n  return posts;\n}\n"
+    }
+  },
+  {
+    "id": "prisma-005-missing-rollback-test",
+    "repo": "prisma/prisma",
+    "language": "typescript",
+    "category": "test",
+    "baseSha": "pri50001",
+    "introducingSha": "pri50002",
+    "fixSha": "pri50003",
+    "description": "Transaction abort integration test fails to assert that state modifications were successfully rolled back",
+    "affectedFiles": ["packages/client/tests/transaction-abort.test.ts"],
+    "expectedLocations": [
+      {
+        "file": "packages/client/tests/transaction-abort.test.ts",
+        "lineStart": 4,
+        "lineEnd": 5
+      }
+    ],
+    "fixSummary": "Assert that post-abort database query confirms pre-transaction values remain intact",
+    "split": "test",
+    "isControl": false,
+    "verifiedBy": "QAEngineer",
+    "createdAt": "2026-11-05T16:00:00.000Z",
+    "fileContext": {
+      "path": "packages/client/tests/transaction-abort.test.ts",
+      "patch": "@@ -1,6 +1,5 @@\n describe(\"Database Transactions\", () => {\n   it(\"handles failure within transaction block\", async () => {\n     const tx = await db.startTransaction();\n     await tx.query(\"UPDATE accounts SET balance = balance - 100\");\n-    expect(await getBalance()).toBe(1000);\n   });\n });",
+      "content": "describe(\"Database Transactions\", () => {\n  it(\"handles failure within transaction block\", async () => {\n    const tx = await db.startTransaction();\n    await tx.query(\"UPDATE accounts SET balance = balance - 100\");\n  });\n});\n"
+    }
+  },
+  {
+    "id": "lodash-001-prototype-pollution-zipobject",
+    "repo": "lodash/lodash",
+    "language": "typescript",
+    "category": "security",
+    "baseSha": "lod10001",
+    "introducingSha": "lod10002",
+    "fixSha": "lod10003",
+    "description": "Path traversal with __proto__ allows modification of Object.prototype causing prototype pollution",
+    "affectedFiles": ["src/zipObjectDeep.ts"],
+    "expectedLocations": [
+      {
+        "file": "src/zipObjectDeep.ts",
+        "lineStart": 5,
+        "lineEnd": 6
+      }
+    ],
+    "fixSummary": "Disallow property paths containing __proto__, constructor, or prototype",
+    "split": "dev",
+    "isControl": false,
+    "verifiedBy": "SecurityTeam",
+    "createdAt": "2026-11-05T16:30:00.000Z",
+    "fileContext": {
+      "path": "src/zipObjectDeep.ts",
+      "patch": "@@ -1,7 +1,8 @@\n export function setDeepProp(obj: any, path: string, val: any): any {\n   const parts = path.split(\".\");\n   let curr = obj;\n   for (let i = 0; i < parts.length - 1; i++) {\n+    curr = curr[parts[i]!] = curr[parts[i]!] || {};\n   }\n   curr[parts[parts.length - 1]!] = val;\n   return obj;\n }",
+      "content": "export function setDeepProp(obj: any, path: string, val: any): any {\n  const parts = path.split(\".\");\n  let curr = obj;\n  for (let i = 0; i < parts.length - 1; i++) {\n    curr = curr[parts[i]!] = curr[parts[i]!] || {};\n  }\n  curr[parts[parts.length - 1]!] = val;\n  return obj;\n}\n"
+    }
+  },
+  {
+    "id": "lodash-002-array-flatten-stack-overflow",
+    "repo": "lodash/lodash",
+    "language": "typescript",
+    "category": "bug",
+    "baseSha": "lod20001",
+    "introducingSha": "lod20002",
+    "fixSha": "lod20003",
+    "description": "Recursive array flattening without depth limits leads to RangeError: Maximum call stack size exceeded",
+    "affectedFiles": ["src/flatten.ts"],
+    "expectedLocations": [
+      {
+        "file": "src/flatten.ts",
+        "lineStart": 3,
+        "lineEnd": 3
+      }
+    ],
+    "fixSummary": "Replace unbounded recursion with iterative stack or add recursion depth guard",
+    "split": "dev",
+    "isControl": false,
+    "verifiedBy": "CoreDev",
+    "createdAt": "2026-11-05T17:00:00.000Z",
+    "fileContext": {
+      "path": "src/flatten.ts",
+      "patch": "@@ -1,5 +1,5 @@\n export function recursiveFlatten(arr: any[]): any[] {\n   return arr.reduce((acc, item) => {\n-    return acc.concat(Array.isArray(item) ? item.flat(1) : item);\n+    return acc.concat(Array.isArray(item) ? recursiveFlatten(item) : item);\n   }, []);\n }",
+      "content": "export function recursiveFlatten(arr: any[]): any[] {\n  return arr.reduce((acc, item) => {\n    return acc.concat(Array.isArray(item) ? recursiveFlatten(item) : item);\n  }, []);\n}\n"
+    }
+  },
+  {
+    "id": "lodash-003-clean-chunk-algorithm",
+    "repo": "lodash/lodash",
+    "language": "typescript",
+    "category": "quality",
+    "baseSha": "lod30001",
+    "introducingSha": "lod30002",
+    "fixSha": "lod30003",
+    "description": "Clean array chunking implementation with fast slice paths to verify false positive suppression",
+    "affectedFiles": ["src/chunk.ts"],
+    "expectedLocations": [],
+    "fixSummary": "None - clean control case",
+    "split": "dev",
+    "isControl": true,
+    "verifiedBy": "Maintainer",
+    "createdAt": "2026-11-05T17:30:00.000Z",
+    "fileContext": {
+      "path": "src/chunk.ts",
+      "patch": "@@ -1,5 +1,7 @@\n export function chunkArray<T>(array: T[], size: number): T[][] {\n   if (!array.length || size < 1) return [];\n   const result: T[][] = [];\n-  for (let i = 0; i < array.length; i += size) result.push(array.slice(i, i + size));\n+  for (let i = 0; i < array.length; i += size) {\n+    result.push(array.slice(i, i + size));\n+  }\n   return result;\n }",
+      "content": "export function chunkArray<T>(array: T[], size: number): T[][] {\n  if (!array.length || size < 1) return [];\n  const result: T[][] = [];\n  for (let i = 0; i < array.length; i += size) {\n    result.push(array.slice(i, i + size));\n  }\n  return result;\n}\n"
+    }
+  },
+  {
+    "id": "lodash-004-template-code-injection",
+    "repo": "lodash/lodash",
+    "language": "typescript",
+    "category": "security",
+    "baseSha": "lod40001",
+    "introducingSha": "lod40002",
+    "fixSha": "lod40003",
+    "description": "Template compiler uses new Function on unsanitized user expression enabling Remote Code Execution",
+    "affectedFiles": ["src/template.ts"],
+    "expectedLocations": [
+      {
+        "file": "src/template.ts",
+        "lineStart": 3,
+        "lineEnd": 3
+      }
+    ],
+    "fixSummary": "Use safe property accessor and AST parser instead of dynamic code evaluation",
+    "split": "test",
+    "isControl": false,
+    "verifiedBy": "SecurityTeam",
+    "createdAt": "2026-11-05T18:00:00.000Z",
+    "fileContext": {
+      "path": "src/template.ts",
+      "patch": "@@ -1,5 +1,5 @@\n export function compileTemplate(tmpl: string, data: Record<string, unknown>): string {\n   return tmpl.replace(/<%=\\s*(.+?)\\s*%>/g, (_, expr) => {\n-    return String(data[expr.trim()] ?? \"\");\n+    return String(new Function(\"data\", `with(data) { return ${expr}; }`)(data));\n   });\n }",
+      "content": "export function compileTemplate(tmpl: string, data: Record<string, unknown>): string {\n  return tmpl.replace(/<%=\\s*(.+?)\\s*%>/g, (_, expr) => {\n    return String(new Function(\"data\", `with(data) { return ${expr}; }`)(data));\n  });\n}\n"
+    }
+  },
+  {
+    "id": "react-001-use-effect-missing-dependency",
+    "repo": "facebook/react",
+    "language": "typescript",
+    "category": "bug",
+    "baseSha": "rea10001",
+    "introducingSha": "rea10002",
+    "fixSha": "rea10003",
+    "description": "Empty dependency array in useEffect captures stale endpoint and onUpdate closure variables",
+    "affectedFiles": ["packages/react/src/hooks/useDataSync.ts"],
+    "expectedLocations": [
+      {
+        "file": "packages/react/src/hooks/useDataSync.ts",
+        "lineStart": 5,
+        "lineEnd": 5
+      }
+    ],
+    "fixSummary": "Add [endpoint, onUpdate] to useEffect dependency array",
+    "split": "dev",
+    "isControl": false,
+    "verifiedBy": "ReactCore",
+    "createdAt": "2026-11-05T18:30:00.000Z",
+    "fileContext": {
+      "path": "packages/react/src/hooks/useDataSync.ts",
+      "patch": "@@ -1,5 +1,5 @@\n export function useDataSync(endpoint: string, onUpdate: (d: any) => void) {\n   useEffect(() => {\n     const sub = subscribe(endpoint, (data) => onUpdate(data));\n     return () => sub.unsubscribe();\n-  }, [endpoint, onUpdate]);\n+  }, []);\n }",
+      "content": "export function useDataSync(endpoint: string, onUpdate: (d: any) => void) {\n  useEffect(() => {\n    const sub = subscribe(endpoint, (data) => onUpdate(data));\n    return () => sub.unsubscribe();\n  }, []);\n}\n"
+    }
+  },
+  {
+    "id": "react-002-infinite-render-loop",
+    "repo": "facebook/react",
+    "language": "typescript",
+    "category": "performance",
+    "baseSha": "rea20001",
+    "introducingSha": "rea20002",
+    "fixSha": "rea20003",
+    "description": "Synchronous unconditional setState inside component render body triggers infinite re-render loop",
+    "affectedFiles": ["packages/react/src/components/Counter.tsx"],
+    "expectedLocations": [
+      {
+        "file": "packages/react/src/components/Counter.tsx",
+        "lineStart": 3,
+        "lineEnd": 3
+      }
+    ],
+    "fixSummary": "Remove synchronous setState from render body or wrap in useEffect",
+    "split": "dev",
+    "isControl": false,
+    "verifiedBy": "ReactCore",
+    "createdAt": "2026-11-05T19:00:00.000Z",
+    "fileContext": {
+      "path": "packages/react/src/components/Counter.tsx",
+      "patch": "@@ -1,4 +1,5 @@\n export function Counter({ initialCount }: { initialCount: number }) {\n   const [count, setCount] = useState(initialCount);\n+  setCount(initialCount);\n   return <div>Count: {count}</div>;\n }",
+      "content": "export function Counter({ initialCount }: { initialCount: number }) {\n  const [count, setCount] = useState(initialCount);\n  setCount(initialCount);\n  return <div>Count: {count}</div>;\n}\n"
+    }
+  },
+  {
+    "id": "react-003-dangerously-set-inner-html",
+    "repo": "facebook/react",
+    "language": "typescript",
+    "category": "security",
+    "baseSha": "rea30001",
+    "introducingSha": "rea30002",
+    "fixSha": "rea30003",
+    "description": "Raw un-sanitized HTML passed directly into dangerouslySetInnerHTML introduces XSS vulnerability",
+    "affectedFiles": ["packages/react/src/components/MarkdownView.tsx"],
+    "expectedLocations": [
+      {
+        "file": "packages/react/src/components/MarkdownView.tsx",
+        "lineStart": 2,
+        "lineEnd": 2
+      }
+    ],
+    "fixSummary": "Sanitize HTML using DOMPurify.sanitize before passing to dangerouslySetInnerHTML",
+    "split": "test",
+    "isControl": false,
+    "verifiedBy": "SecurityTeam",
+    "createdAt": "2026-11-05T19:30:00.000Z",
+    "fileContext": {
+      "path": "packages/react/src/components/MarkdownView.tsx",
+      "patch": "@@ -1,3 +1,3 @@\n export function MarkdownView({ rawHtml }: { rawHtml: string }) {\n-  return <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(rawHtml) }} />;\n+  return <div dangerouslySetInnerHTML={{ __html: rawHtml }} />;\n }",
+      "content": "export function MarkdownView({ rawHtml }: { rawHtml: string }) {\n  return <div dangerouslySetInnerHTML={{ __html: rawHtml }} />;\n}\n"
+    }
+  },
+  {
+    "id": "react-004-clean-memo-wrapper",
+    "repo": "facebook/react",
+    "language": "typescript",
+    "category": "quality",
+    "baseSha": "rea40001",
+    "introducingSha": "rea40002",
+    "fixSha": "rea40003",
+    "description": "Clean React.memo component wrapper to verify false positive suppression on optimized components",
+    "affectedFiles": ["packages/react/src/components/Avatar.tsx"],
+    "expectedLocations": [],
+    "fixSummary": "None - clean control case",
+    "split": "test",
+    "isControl": true,
+    "verifiedBy": "Maintainer",
+    "createdAt": "2026-11-05T20:00:00.000Z",
+    "fileContext": {
+      "path": "packages/react/src/components/Avatar.tsx",
+      "patch": "@@ -1,3 +1,3 @@\n-export function UserAvatar({ url, name }: { url: string; name: string }) {\n+export const UserAvatar = memo(function UserAvatar({ url, name }: { url: string; name: string }) {\n   return <img src={url} alt={name} className=\"avatar-img\" />;\n-}",
+      "content": "export const UserAvatar = memo(function UserAvatar({ url, name }: { url: string; name: string }) {\n  return <img src={url} alt={name} className=\"avatar-img\" />;\n});\n"
+    }
+  },
+  {
+    "id": "react-005-unhandled-boundary-suspense",
+    "repo": "facebook/react",
+    "language": "typescript",
+    "category": "error-handling",
+    "baseSha": "rea50001",
+    "introducingSha": "rea50002",
+    "fixSha": "rea50003",
+    "description": "Synchronous call to async fetcher inside component without Suspense or await triggers runtime crash",
+    "affectedFiles": ["packages/react/src/components/AsyncCard.tsx"],
+    "expectedLocations": [
+      {
+        "file": "packages/react/src/components/AsyncCard.tsx",
+        "lineStart": 2,
+        "lineEnd": 3
+      }
+    ],
+    "fixSummary": "Wrap in Suspense with use(promise) hook or manage fetcher in useEffect state",
+    "split": "test",
+    "isControl": false,
+    "verifiedBy": "ReactCore",
+    "createdAt": "2026-11-05T20:30:00.000Z",
+    "fileContext": {
+      "path": "packages/react/src/components/AsyncCard.tsx",
+      "patch": "@@ -1,4 +1,4 @@\n export function AsyncCard({ fetcher }: { fetcher: () => Promise<any> }) {\n-  const data = use(fetcher());\n+  const data = fetcher();\n   return <div>{data.title}</div>;\n }",
+      "content": "export function AsyncCard({ fetcher }: { fetcher: () => Promise<any> }) {\n  const data = fetcher();\n  return <div>{data.title}</div>;\n}\n"
     }
   }
 ]

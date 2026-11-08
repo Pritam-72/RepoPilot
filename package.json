@@ -16,7 +16,8 @@
     "benchmark": "tsx benchmark/runner/index.ts",
     "benchmark:multi": "tsx benchmark/runner/index.ts --multi",
     "benchmark:verify": "tsx benchmark/runner/index.ts --verify",
-    "test:benchmark": "vitest run tests/evaluation/benchmark-phase3.test.ts tests/evaluation/benchmark-phase4.test.ts tests/evaluation/benchmark-phase5.test.ts"
+    "benchmark:expanded": "tsx benchmark/runner/index.ts --expanded",
+    "test:benchmark": "vitest run tests/evaluation/benchmark-phase3.test.ts tests/evaluation/benchmark-phase4.test.ts tests/evaluation/benchmark-phase5.test.ts tests/evaluation/benchmark-phase7.test.ts"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

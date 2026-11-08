@@ -1,21 +1,21 @@
 {
-  "totalCases": 6,
-  "bugCases": 4,
-  "controlCases": 2,
+  "totalCases": 30,
+  "bugCases": 23,
+  "controlCases": 7,
   "beforeVerification": {
-    "candidateCount": 10,
-    "truePositives": 4,
-    "falsePositives": 6,
-    "precision": 0.4,
+    "candidateCount": 53,
+    "truePositives": 23,
+    "falsePositives": 30,
+    "precision": 0.434,
     "recall": 1
   },
   "afterVerification": {
-    "verifiedCount": 4,
-    "truePositives": 4,
+    "verifiedCount": 23,
+    "truePositives": 23,
     "falsePositives": 0,
     "precision": 1,
     "recall": 1,
-    "falsePositivesEliminated": 6,
+    "falsePositivesEliminated": 30,
     "reductionPercentage": 100
   },
   "rejectionsSample": [
