@@ -9,7 +9,14 @@ vi.mock("@acr/database", () => {
       repository: {
         findMany: vi.fn(),
         findUnique: vi.fn(),
+        findFirst: vi.fn(),
+        create: vi.fn(),
         update: vi.fn(),
+        delete: vi.fn(),
+      },
+      githubInstallation: {
+        findFirst: vi.fn(),
+        create: vi.fn(),
       },
       reviewJob: {
         findUnique: vi.fn(),
@@ -178,6 +185,95 @@ describe("Repository Settings & Tenant Authorization API (Task 7.2)", () => {
 
     expect(res.status).toBe(201);
     expect(res.body.feedback.feedbackType).toBe("useful");
+  });
+
+  describe("POST /api/v1/repositories (Add Repository)", () => {
+    it("creates a new repository with default branch and auto-provisioned installation", async () => {
+      vi.mocked(prisma.githubInstallation.findFirst).mockResolvedValue({
+        id: "inst-100",
+        accountLogin: "acme-corp",
+      } as any);
+      vi.mocked(prisma.repository.findFirst).mockResolvedValue(null);
+      vi.mocked(prisma.repository.create).mockResolvedValue({
+        id: "repo-new",
+        owner: "acme-corp",
+        name: "billing-service",
+        defaultBranch: "main",
+        isEnabled: true,
+        installationId: "inst-100",
+        reviewConfig: { confidenceThreshold: 0.75 },
+      } as any);
+
+      const res = await request(app)
+        .post("/api/v1/repositories")
+        .send({
+          owner: "acme-corp",
+          name: "billing-service",
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.repository.id).toBe("repo-new");
+      expect(res.body.repository.name).toBe("billing-service");
+      expect(prisma.repository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            owner: "acme-corp",
+            name: "billing-service",
+            defaultBranch: "main",
+            installationId: "inst-100",
+          }),
+        })
+      );
+    });
+
+    it("rejects repository creation when owner or name is missing", async () => {
+      const res = await request(app)
+        .post("/api/v1/repositories")
+        .send({
+          owner: "",
+          name: "",
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toContain("Invalid repository payload");
+    });
+
+    it("returns 409 Conflict when repository already exists", async () => {
+      vi.mocked(prisma.githubInstallation.findFirst).mockResolvedValue({
+        id: "inst-100",
+        accountLogin: "acme-corp",
+      } as any);
+      vi.mocked(prisma.repository.findFirst).mockResolvedValue({
+        id: "repo-existing",
+        owner: "acme-corp",
+        name: "billing-service",
+      } as any);
+
+      const res = await request(app)
+        .post("/api/v1/repositories")
+        .send({
+          owner: "acme-corp",
+          name: "billing-service",
+        });
+
+      expect(res.status).toBe(409);
+      expect(res.body.error).toContain("already registered");
+    });
+
+    it("deletes a repository successfully", async () => {
+      vi.mocked(prisma.repository.findUnique).mockResolvedValue({
+        id: "repo-del",
+        installationId: "inst-100",
+      } as any);
+      vi.mocked(prisma.repository.delete).mockResolvedValue({ id: "repo-del" } as any);
+
+      const res = await request(app)
+        .delete("/api/v1/repositories/repo-del")
+        .set("x-installation-id", "inst-100");
+
+      expect(res.status).toBe(200);
+      expect(res.body.message).toContain("successfully deleted");
+    });
   });
 });
 

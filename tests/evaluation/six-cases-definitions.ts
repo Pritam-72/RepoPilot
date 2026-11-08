@@ -130,3 +130,4 @@ export const SIX_TEST_CASES: TestCaseDefinition[] = [
     remediationSnippet: `// No remediation needed - PR is clean and approved`,
   },
 ];
+
