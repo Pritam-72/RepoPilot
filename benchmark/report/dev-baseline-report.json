@@ -12,7 +12,7 @@
   "cleanPrFalsePositives": 0,
   "lineAccuracy": 1,
   "totalTokens": 7471,
-  "durationMs": 6,
+  "durationMs": 5,
   "categoryBreakdown": {
     "bug": {
       "name": "bug",

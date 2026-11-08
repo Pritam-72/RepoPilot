@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import type { Job } from "bullmq";
 import { ReviewJobPayloadSchema, type ReviewJobPayload } from "@acr/review-contracts";
 import { prisma } from "@acr/database";
-import { logger } from "@acr/observability";
+import { logger, metrics, tracer } from "@acr/observability";
+import { evaluatePrTriviality } from "@acr/repository-context";
 import {
   createInstallationOctokit,
   getPRMetadata,
@@ -30,48 +31,77 @@ function computeFindingFingerprint(
 export async function processReviewJob(
   job: Job<ReviewJobPayload>
 ): Promise<{ processed: boolean; findingsCount: number; status: string; publishedCount?: number }> {
+  const startTime = Date.now();
   const log = logger.child({ jobId: job.id, headSha: job.data.headSha });
   log.info("Review job started");
 
   const payload = ReviewJobPayloadSchema.parse(job.data);
   const { installationId, repositoryId, pullRequestNumber, headSha, reviewJobId } = payload;
 
-  // 1. Get repository info from DB
-  let repo = await prisma.repository.findUnique({ where: { id: repositoryId } });
-  if (!repo && !isNaN(Number(repositoryId))) {
-    repo = await prisma.repository.findFirst({
-      where: { githubRepositoryId: Number(repositoryId) },
-    });
-  }
-  if (!repo) {
-    throw new Error(`Repository ${repositoryId} not found`);
-  }
-
-  // 2. Fetch PR metadata, changed files (paginated), and commits (paginated) from GitHub
-  const octokit = await createInstallationOctokit(Number(installationId), APP_ID, PRIVATE_KEY);
-  const [meta, changedFiles, commits] = await Promise.all([
-    getPRMetadata(octokit, repo.owner, repo.name, pullRequestNumber),
-    getChangedFiles(octokit, repo.owner, repo.name, pullRequestNumber),
-    getPRCommits(octokit, repo.owner, repo.name, pullRequestNumber),
-  ]);
-
-  log.info(
-    {
-      prNumber: pullRequestNumber,
-      fileCount: changedFiles.length,
-      commitCount: commits.length,
+  const span = tracer.startSpan("processReviewJob", {
+    attributes: {
+      repositoryId,
+      pullRequestNumber,
       headSha,
+      deliveryId: payload.deliveryId,
     },
-    "PR snapshot ingested"
-  );
+  });
 
-  // Compute changed line numbers by file
-  const changedLinesByFile = new Map<string, Set<number>>();
-  for (const f of changedFiles) {
-    if (f.patch) {
-      changedLinesByFile.set(f.path, getChangedLineNumbers(f.patch));
+  try {
+    // 1. Get repository info from DB
+    let repo = await prisma.repository.findUnique({ where: { id: repositoryId } });
+    if (!repo && !isNaN(Number(repositoryId))) {
+      repo = await prisma.repository.findFirst({
+        where: { githubRepositoryId: Number(repositoryId) },
+      });
     }
-  }
+    if (!repo) {
+      throw new Error(`Repository ${repositoryId} not found`);
+    }
+
+    // 2. Fetch PR metadata, changed files (paginated), and commits (paginated) from GitHub
+    const octokit = await createInstallationOctokit(Number(installationId), APP_ID, PRIVATE_KEY);
+    const [meta, changedFiles, commits] = await Promise.all([
+      getPRMetadata(octokit, repo.owner, repo.name, pullRequestNumber),
+      getChangedFiles(octokit, repo.owner, repo.name, pullRequestNumber),
+      getPRCommits(octokit, repo.owner, repo.name, pullRequestNumber),
+    ]);
+
+    log.info(
+      {
+        prNumber: pullRequestNumber,
+        fileCount: changedFiles.length,
+        commitCount: commits.length,
+        headSha,
+      },
+      "PR snapshot ingested"
+    );
+
+    // Phase 9 Performance: Skip-Trivial-PR Heuristics
+    const triviality = evaluatePrTriviality(changedFiles);
+    if (triviality.isTrivial) {
+      log.info(
+        { reason: triviality.reason, category: triviality.category },
+        "Skipping deep LLM review for trivial pull request"
+      );
+      metrics.recordReviewStatus("skipped");
+      metrics.recordReviewDuration(Date.now() - startTime);
+      tracer.endSpan(span, "ok");
+      return {
+        processed: true,
+        findingsCount: 0,
+        status: "skipped",
+        publishedCount: 0,
+      };
+    }
+
+    // Compute changed line numbers by file
+    const changedLinesByFile = new Map<string, Set<number>>();
+    for (const f of changedFiles) {
+      if (f.patch) {
+        changedLinesByFile.set(f.path, getChangedLineNumbers(f.patch));
+      }
+    }
 
   // 3. Ensure PullRequest record exists and upsert ReviewJob
   const pr = await prisma.pullRequest.upsert({
@@ -276,12 +306,20 @@ export async function processReviewJob(
     }),
   ]);
 
+  const durationMs = Date.now() - startTime;
+  metrics.recordReviewDuration(durationMs);
+  metrics.recordReviewStatus(reviewResult.status === "partially_completed" ? "partial" : reviewResult.status);
+  const estimatedTokens = reviewResult.agentRuns.length * 1500;
+  metrics.recordTokens("orchestrator", "gemini-1.5-pro", estimatedTokens);
+  tracer.endSpan(span, reviewResult.status === "failed" ? "error" : "ok");
+
   log.info(
     {
       totalFindings: reviewResult.totalFindings,
       verifiedCount: verification.verified.length,
       publishedCount,
       status: reviewResult.status,
+      durationMs,
     },
     "Review job completed"
   );
@@ -292,4 +330,11 @@ export async function processReviewJob(
     status: reviewResult.status,
     publishedCount,
   };
+  } catch (err) {
+    metrics.recordReviewStatus("failed");
+    metrics.recordProviderError("worker", err instanceof Error ? err.name : "ReviewJobError");
+    tracer.endSpan(span, "error", String(err));
+    log.error({ err }, "Review job processing failed");
+    throw err;
+  }
 }

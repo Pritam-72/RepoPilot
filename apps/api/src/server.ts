@@ -3,6 +3,7 @@ import type { Queue } from "bullmq";
 import type { ReviewJobPayload } from "@acr/review-contracts";
 import { env } from "./config/env.js";
 import { healthRouter } from "./routes/health.js";
+import { createMetricsRouter } from "./routes/metrics.js";
 import { createFixProposalRouter } from "./routes/fix-proposals.js";
 import { createTestProposalRouter } from "./routes/test-proposals.js";
 import { createRepositoryRouter } from "./routes/repositories.js";
@@ -10,6 +11,8 @@ import { createReviewRouter } from "./routes/reviews.js";
 import { createAnalyticsRouter } from "./routes/analytics.js";
 import { createWebhookRouter } from "./routes/webhooks.js";
 import { correlationMiddleware } from "./middleware/correlation.js";
+import { tracingMiddleware } from "./middleware/tracing.js";
+import { createRateLimiter } from "./middleware/rate-limiter.js";
 import { errorHandler } from "./middleware/error-handler.js";
 import { logger } from "@acr/observability";
 
@@ -20,13 +23,13 @@ export interface RequestWithRawBody extends Request {
 export function createApp(): Express {
   const app: Express = express();
 
-  // Enable CORS for web dashboard and local dev clients
+  // 1. Enable CORS for web dashboard and local dev clients
   app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
     res.header(
       "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, x-installation-id, x-tenant-id, x-correlation-id, x-github-delivery, x-hub-signature-256"
+      "Content-Type, Authorization, x-installation-id, x-tenant-id, x-correlation-id, x-github-delivery, x-hub-signature-256, traceparent"
     );
     if (req.method === "OPTIONS") {
       res.sendStatus(204);
@@ -35,7 +38,11 @@ export function createApp(): Express {
     next();
   });
 
-  // Capture raw body for GitHub HMAC-SHA256 signature verification
+  // 2. OpenTelemetry distributed tracing and correlation ID
+  app.use(tracingMiddleware);
+  app.use(correlationMiddleware);
+
+  // 3. Capture raw body for GitHub HMAC-SHA256 signature verification
   app.use(
     express.json({
       verify: (req: RequestWithRawBody, _res, buf) => {
@@ -44,11 +51,20 @@ export function createApp(): Express {
     })
   );
 
-  app.use(correlationMiddleware);
+  // 4. Rate Limiting Protection (Phase 9)
+  const apiRateLimiter = createRateLimiter({
+    windowMs: 60_000,
+    maxRequests: Number(process.env["RATE_LIMIT_MAX_REQUESTS"] ?? 120),
+  });
+  app.use("/api/v1", apiRateLimiter);
 
-  // Mount routes
+  // 5. Mount observability & health routes
+  app.use(createMetricsRouter());
   app.use(healthRouter);
   app.use("/api/v1", healthRouter);
+  app.use("/api/v1", createMetricsRouter());
+
+  // 6. Domain routes
   app.use("/api/v1/analytics", createAnalyticsRouter());
   app.use("/api/v1/repositories", createRepositoryRouter());
   app.use("/api/v1", createReviewRouter());

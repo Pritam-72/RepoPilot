@@ -125,3 +125,98 @@ export function filterReviewableFiles<T extends { path: string }>(
   return { reviewable, ignored };
 }
 
+export interface PrTrivialityResult {
+  isTrivial: boolean;
+  category: "docs_only" | "lockfile_only" | "asset_only" | "empty" | "non_trivial";
+  reason: string;
+}
+
+const DOC_EXTENSIONS = new Set([".md", ".markdown", ".txt", ".rst", ".adoc"]);
+const DOC_BASENAMES = new Set([
+  "license",
+  "license.md",
+  "license.txt",
+  "notice",
+  "authors",
+  "contributors",
+  "changelog",
+  "changelog.md",
+]);
+
+/**
+ * Phase 9 Skip-Trivial-PR Heuristics
+ * Analyzes PR file list to detect documentation-only, lockfile-only, or asset-only changes
+ * that can skip costly multi-agent LLM analysis without sacrificing safety.
+ */
+export function evaluatePrTriviality(files: Array<{ path: string }>): PrTrivialityResult {
+  if (files.length === 0) {
+    return {
+      isTrivial: true,
+      category: "empty",
+      reason: "No changed files detected in pull request",
+    };
+  }
+
+  let docsCount = 0;
+  let lockfileCount = 0;
+  let assetCount = 0;
+
+  for (const f of files) {
+    const normalized = normalizePath(f.path);
+    const basename = path.basename(normalized);
+    const ext = path.extname(normalized);
+
+    if (
+      DOC_EXTENSIONS.has(ext) ||
+      DOC_BASENAMES.has(basename) ||
+      normalized.startsWith("docs/") ||
+      normalized.includes("/docs/")
+    ) {
+      docsCount++;
+    } else if (LOCKFILES.has(basename)) {
+      lockfileCount++;
+    } else if (BINARY_EXTENSIONS.has(ext)) {
+      assetCount++;
+    }
+  }
+
+  if (docsCount === files.length) {
+    return {
+      isTrivial: true,
+      category: "docs_only",
+      reason: "Pull request contains exclusively documentation files (.md, .txt, docs/)",
+    };
+  }
+
+  if (lockfileCount === files.length) {
+    return {
+      isTrivial: true,
+      category: "lockfile_only",
+      reason: "Pull request contains exclusively package manager lockfile updates",
+    };
+  }
+
+  if (assetCount === files.length) {
+    return {
+      isTrivial: true,
+      category: "asset_only",
+      reason: "Pull request contains exclusively static binary or media assets",
+    };
+  }
+
+  if (docsCount + lockfileCount + assetCount === files.length) {
+    return {
+      isTrivial: true,
+      category: "docs_only",
+      reason: "Pull request contains only documentation, lockfile, and static asset updates",
+    };
+  }
+
+  return {
+    isTrivial: false,
+    category: "non_trivial",
+    reason: "Pull request contains source code changes requiring agent review",
+  };
+}
+
+

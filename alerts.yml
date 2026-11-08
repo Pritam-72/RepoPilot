@@ -1,0 +1,38 @@
+groups:
+  - name: repopilot_production_alerts
+    rules:
+      - alert: HighReviewFailureRate
+        expr: acr_review_failure_rate > 0.02
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Review failure rate > 2% (SLO breached)"
+          description: "Current failure rate is {{ $value }}."
+
+      - alert: ReviewQueueBacklog
+        expr: acr_queue_depth > 50
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Review queue backlog > 50 jobs"
+          description: "Current queue backlog is {{ $value }} jobs."
+
+      - alert: ProviderErrorSpike
+        expr: sum(rate(acr_provider_errors_total[5m])) > 10
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "LLM Provider errors spiking"
+          description: "Upstream AI model provider is returning 429 rate-limits or 5xx failures."
+
+      - alert: HighReviewLatency
+        expr: acr_review_duration_ms{quantile="0.95"} > 120000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "P95 Review Latency > 120 seconds"
+          description: "P95 review completion duration has exceeded target threshold."

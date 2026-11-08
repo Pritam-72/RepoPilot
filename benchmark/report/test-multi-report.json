@@ -30,7 +30,7 @@
       "bugsDetected": 3,
       "falsePositives": 0,
       "tokensConsumed": 7837,
-      "durationMs": 3
+      "durationMs": 5
     },
     {
       "agent": "error-handling-reviewer",
@@ -39,7 +39,7 @@
       "bugsDetected": 3,
       "falsePositives": 0,
       "tokensConsumed": 7679,
-      "durationMs": 3
+      "durationMs": 4
     },
     {
       "agent": "test-coverage-reviewer",
@@ -48,7 +48,7 @@
       "bugsDetected": 2,
       "falsePositives": 0,
       "tokensConsumed": 7439,
-      "durationMs": 1
+      "durationMs": 4
     },
     {
       "agent": "performance-reviewer",
@@ -57,7 +57,7 @@
       "bugsDetected": 2,
       "falsePositives": 0,
       "tokensConsumed": 7789,
-      "durationMs": 2
+      "durationMs": 4
     },
     {
       "agent": "quality-reviewer",

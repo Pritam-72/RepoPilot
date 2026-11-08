@@ -12,7 +12,7 @@
   "cleanPrFalsePositives": 0,
   "lineAccuracy": 1,
   "totalTokens": 2539,
-  "durationMs": 0,
+  "durationMs": 1,
   "categoryBreakdown": {
     "security": {
       "name": "security",

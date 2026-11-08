@@ -12,7 +12,7 @@
   "cleanPrFalsePositives": 0,
   "lineAccuracy": 1,
   "totalTokens": 115973,
-  "durationMs": 22,
+  "durationMs": 17,
   "agentContributions": [
     {
       "agent": "bug-reviewer",
@@ -21,7 +21,7 @@
       "bugsDetected": 5,
       "falsePositives": 0,
       "tokensConsumed": 19494,
-      "durationMs": 5
+      "durationMs": 8
     },
     {
       "agent": "security-reviewer",
@@ -39,7 +39,7 @@
       "bugsDetected": 4,
       "falsePositives": 0,
       "tokensConsumed": 19254,
-      "durationMs": 9
+      "durationMs": 6
     },
     {
       "agent": "test-coverage-reviewer",
@@ -48,7 +48,7 @@
       "bugsDetected": 2,
       "falsePositives": 0,
       "tokensConsumed": 18654,
-      "durationMs": 10
+      "durationMs": 7
     },
     {
       "agent": "performance-reviewer",
@@ -57,7 +57,7 @@
       "bugsDetected": 5,
       "falsePositives": 0,
       "tokensConsumed": 19530,
-      "durationMs": 11
+      "durationMs": 7
     },
     {
       "agent": "quality-reviewer",
@@ -66,7 +66,7 @@
       "bugsDetected": 1,
       "falsePositives": 0,
       "tokensConsumed": 19391,
-      "durationMs": 13
+      "durationMs": 5
     }
   ],
   "categoryBreakdown": {

@@ -75,6 +75,7 @@ export function buildDockerRunArgs(config: SandboxConfig, command: string): stri
   const args = [
     "run",
     "--rm",
+    "--security-opt=no-new-privileges:true",
     "--network",
     network,
     "-m",
