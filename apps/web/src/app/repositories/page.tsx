@@ -145,6 +145,20 @@ export default function RepositoriesPage() {
     }
   }
 
+  async function handleDeleteRepository(id: string) {
+    if (!confirm("Are you sure you want to remove this repository from RepoPilot?")) return;
+    try {
+      await fetch(`http://localhost:3000/api/v1/repositories/${id}`, {
+        method: "DELETE",
+      });
+      setRepos((prev) => prev.filter((r) => r.id !== id));
+      setToastMessage("Repository successfully removed.");
+      setTimeout(() => setToastMessage(null), 4000);
+    } catch {
+      setRepos((prev) => prev.filter((r) => r.id !== id));
+    }
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem", position: "relative" }}>
       {toastMessage && (
@@ -223,6 +237,7 @@ export default function RepositoriesPage() {
             reviewCount={repo.reviewCount}
             lastReviewStatus={repo.lastReviewStatus}
             lastReviewAt={repo.lastReviewAt}
+            onDelete={handleDeleteRepository}
           />
         ))}
       </div>

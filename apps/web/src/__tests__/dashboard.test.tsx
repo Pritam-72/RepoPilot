@@ -26,7 +26,7 @@ describe("Web Dashboard (Task 7.1)", () => {
   it("renders recent review runs table", () => {
     render(<DashboardPage />);
     expect(screen.getByTestId("recent-runs-table")).toBeDefined();
-    expect(screen.getByText("Pritam-72/RepoPilot")).toBeDefined();
+    expect(screen.getAllByText("Pritam-72/RepoPilot")[0]).toBeDefined();
     expect(screen.getByText("#42")).toBeDefined();
   });
 

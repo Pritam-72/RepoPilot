@@ -6,25 +6,66 @@ import { logger } from "@acr/observability";
 export const RepositorySettingsSchema = z.object({
   isEnabled: z.boolean().optional(),
   minimumConfidence: z.number().min(0).max(1).optional(),
-  enabledCategories: z
-    .array(z.enum(["correctness", "security", "performance", "maintainability", "testing", "dependency"]))
-    .optional(),
+  confidenceThreshold: z.number().min(0).max(1).optional(),
+  enabledCategories: z.array(z.string()).optional(),
   ignorePaths: z.array(z.string()).optional(),
   customConventions: z.array(z.string()).optional(),
+  conventions: z.array(z.string()).optional(),
   automatedPublishing: z.boolean().optional(),
+  agents: z.record(z.boolean()).optional(),
+  reviewConfig: z.record(z.any()).optional(),
 });
 
 export type RepositorySettings = z.infer<typeof RepositorySettingsSchema>;
 
-export const CreateRepositorySchema = z.object({
-  owner: z.string().min(1, "Owner is required").trim(),
-  name: z.string().min(1, "Repository name is required").trim(),
-  defaultBranch: z.string().min(1).default("main").optional(),
-  githubRepositoryId: z.number().int().positive().optional(),
-  installationId: z.string().optional(),
-  reviewConfig: z.record(z.any()).optional(),
-  isEnabled: z.boolean().default(true).optional(),
-});
+export const CreateRepositorySchema = z
+  .object({
+    owner: z.string().trim().optional(),
+    name: z.string().trim().optional(),
+    fullName: z.string().trim().optional(),
+    defaultBranch: z.string().min(1).default("main").optional(),
+    githubRepositoryId: z.number().int().positive().optional(),
+    installationId: z.string().optional(),
+    reviewConfig: z.record(z.any()).optional(),
+    isEnabled: z.boolean().default(true).optional(),
+  })
+  .superRefine((data, ctx) => {
+    let owner = data.owner;
+    let name = data.name;
+    if ((!owner || !name) && data.fullName && data.fullName.includes("/")) {
+      const parts = data.fullName.split("/");
+      owner = parts[0]?.trim();
+      name = parts[1]?.trim();
+    }
+    if (!owner || owner.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["owner"],
+        message: "Owner is required",
+      });
+    }
+    if (!name || name.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["name"],
+        message: "Repository name is required",
+      });
+    }
+  })
+  .transform((data) => {
+    let owner = data.owner;
+    let name = data.name;
+    if ((!owner || !name) && data.fullName && data.fullName.includes("/")) {
+      const parts = data.fullName.split("/");
+      owner = parts[0]?.trim();
+      name = parts[1]?.trim();
+    }
+    return {
+      ...data,
+      owner: owner!,
+      name: name!,
+    };
+  });
 
 export type CreateRepositoryInput = z.infer<typeof CreateRepositorySchema>;
 

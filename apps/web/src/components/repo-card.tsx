@@ -8,6 +8,7 @@ export interface RepoCardProps {
   reviewCount: number;
   lastReviewStatus?: ("completed" | "analyzing" | "failed") | undefined;
   lastReviewAt?: string | undefined;
+  onDelete?: ((id: string) => void) | undefined;
 }
 
 export function RepoCard({
@@ -18,6 +19,7 @@ export function RepoCard({
   reviewCount,
   lastReviewStatus = "completed",
   lastReviewAt = "Just now",
+  onDelete,
 }: RepoCardProps) {
   const statusStyles: Record<string, { bg: string; text: string; border: string }> = {
     completed: { bg: "#f0fdf4", text: "#166534", border: "#bbf7d0" },
@@ -74,9 +76,9 @@ export function RepoCard({
 
       <div style={{ marginTop: "0.5rem", paddingTop: "0.75rem", borderTop: "1px solid #f3f4f6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: "0.75rem", color: "#9ca3af" }}>Last review: {lastReviewAt}</span>
-        <div style={{ display: "flex", gap: "0.75rem" }}>
+        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
           <a
-            href={`/reviews`}
+            href="/reviews"
             style={{
               fontSize: "0.8125rem",
               color: "#4b5563",
@@ -97,9 +99,25 @@ export function RepoCard({
           >
             Settings →
           </a>
+          {onDelete && (
+            <button
+              type="button"
+              onClick={() => onDelete(id)}
+              title="Remove repository"
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "#9ca3af",
+                cursor: "pointer",
+                padding: "0.125rem",
+                fontSize: "0.875rem",
+              }}
+            >
+              🗑️
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 }
-
