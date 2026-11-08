@@ -52,11 +52,11 @@ export const DEFAULT_MAX_TOKENS_PER_UNIT = 2_500;
  * when exceeding the token budget.
  */
 function splitOversizedContent(
-  content: string,
+  content: string = "",
   maxChars: number
 ): { parts: string[]; isPartial: boolean } {
-  if (content.length <= maxChars) {
-    return { parts: [content], isPartial: false };
+  if (!content || content.length <= maxChars) {
+    return { parts: [content ?? ""], isPartial: false };
   }
 
   const lines = content.split("\n");
@@ -80,6 +80,85 @@ function splitOversizedContent(
   }
 
   return { parts, isPartial: true };
+}
+
+/**
+ * Re-chunks an oversized unit when LLM context overflow or memory pressure is detected (plan.md Phase 6).
+ */
+export function rechunkOnContextOverflow(
+  unitOrUnits: any | any[],
+  targetTokenBudget = 1000
+): any[] {
+  const units: any[] = Array.isArray(unitOrUnits) ? unitOrUnits : [unitOrUnits];
+  const maxChars = targetTokenBudget * 4;
+  const result: any[] = [];
+
+  for (const unit of units) {
+    if (Array.isArray(unit.files)) {
+      let currentFiles: any[] = [];
+      let currentTokens = 0;
+      let chunkIdx = 1;
+
+      for (const file of unit.files) {
+        const fileTokens =
+          file.tokenCount ?? estimateTokens(file.diff ?? file.content ?? "");
+        if (fileTokens > targetTokenBudget && (file.diff || file.content)) {
+          const content = file.diff ?? file.content ?? "";
+          const { parts } = splitOversizedContent(content, maxChars);
+          for (let pIdx = 0; pIdx < parts.length; pIdx++) {
+            result.push({
+              ...unit,
+              id: `${unit.id ?? "unit"}-chunk-${chunkIdx++}`,
+              files: [
+                {
+                  ...file,
+                  ...(file.diff !== undefined ? { diff: parts[pIdx] } : {}),
+                  ...(file.content !== undefined ? { content: parts[pIdx] } : {}),
+                  tokenCount: estimateTokens(parts[pIdx]!),
+                },
+              ],
+              totalTokens: estimateTokens(parts[pIdx]!),
+              isPartial: true,
+            });
+          }
+        } else if (currentTokens + fileTokens > targetTokenBudget && currentFiles.length > 0) {
+          result.push({
+            ...unit,
+            id: `${unit.id ?? "unit"}-chunk-${chunkIdx++}`,
+            files: currentFiles,
+            totalTokens: currentTokens,
+          });
+          currentFiles = [file];
+          currentTokens = fileTokens;
+        } else {
+          currentFiles.push(file);
+          currentTokens += fileTokens;
+        }
+      }
+
+      if (currentFiles.length > 0) {
+        result.push({
+          ...unit,
+          id: `${unit.id ?? "unit"}-chunk-${chunkIdx++}`,
+          files: currentFiles,
+          totalTokens: currentTokens,
+        });
+      }
+    } else {
+      const code = unit.surroundingCode ?? "";
+      const { parts } = splitOversizedContent(code, maxChars);
+      for (const part of parts) {
+        result.push({
+          ...unit,
+          surroundingCode: part,
+          tokenEstimate: estimateTokens(part),
+          isPartial: true,
+        });
+      }
+    }
+  }
+
+  return result;
 }
 
 /**

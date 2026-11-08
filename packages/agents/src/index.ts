@@ -6,6 +6,7 @@ export * from "./error-handling-agent.js";
 export * from "./test-coverage-agent.js";
 export * from "./multi-agent-orchestrator.js";
 export * from "./verification-agent.js";
+export * from "./reliability/index.js";
 export * from "./cli.js";
 export * from "./bug-agent.js";
 export * from "./security-agent.js";

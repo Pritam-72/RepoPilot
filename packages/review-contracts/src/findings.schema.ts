@@ -71,3 +71,41 @@ export const AgentRunSchema = z.object({
 
 export type AgentRun = z.infer<typeof AgentRunSchema>;
 
+/**
+ * Review status model and Analysis Coverage schema (plan.md Phase 6)
+ */
+export const ReviewStatusEnum = z.enum(["completed", "partial", "failed"]);
+export type ReviewStatus = z.infer<typeof ReviewStatusEnum>;
+
+export const AnalysisCoverageSchema = z.object({
+  totalFiles: z.number().int().nonnegative(),
+  analyzedFiles: z.array(z.string()),
+  skippedFiles: z.array(
+    z.object({
+      path: z.string(),
+      reason: z.string(),
+    })
+  ).default([]),
+  totalAgents: z.number().int().nonnegative(),
+  successfulAgents: z.array(z.string()),
+  degradedAgents: z.array(
+    z.object({
+      agent: z.string(),
+      error: z.string(),
+    })
+  ).default([]),
+  reviewStatus: ReviewStatusEnum,
+  status: ReviewStatusEnum.optional(),
+  coveragePercentage: z.number().optional(),
+  notices: z.array(z.string()).optional(),
+  tokenUsage: z.object({
+    promptTokens: z.number().nonnegative(),
+    completionTokens: z.number().nonnegative(),
+    totalTokens: z.number().nonnegative(),
+  }),
+  costCapReached: z.boolean(),
+});
+
+export type AnalysisCoverage = z.infer<typeof AnalysisCoverageSchema>;
+
+

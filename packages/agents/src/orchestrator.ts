@@ -3,9 +3,10 @@ import { runSecurityReviewAgent } from "./security-agent.js";
 import { runQualityReviewAgent } from "./quality-agent.js";
 import { runPerformanceReviewAgent } from "./performance-agent.js";
 import { runDependencyReviewAgent } from "./dependency-agent.js";
-import type { ReviewAgentInput, Finding } from "@acr/review-contracts";
+import type { ReviewAgentInput, Finding, AnalysisCoverage } from "@acr/review-contracts";
 import type { LLMProviderOptions } from "./llm-provider.js";
 import { logger } from "@acr/observability";
+import { buildAnalysisCoverage } from "./reliability/index.js";
 
 export type AgentType = "bug" | "security" | "quality" | "performance" | "dependency";
 
@@ -23,6 +24,7 @@ export interface OrchestratedReviewResult {
   allFindings: Finding[];
   totalFindings: number;
   durationMs: number;
+  coverage: AnalysisCoverage;
 }
 
 export interface OrchestratorOptions extends LLMProviderOptions {
@@ -154,6 +156,21 @@ export async function runReviewOrchestrator(
   const allFindings = settled.flatMap((r) => r.findings);
   const totalDurationMs = Date.now() - startTime;
 
+  const coverage = buildAnalysisCoverage({
+    allFiles: input.changedFiles.map((f) => f.path),
+    analyzedFiles: input.changedFiles.map((f) => f.path),
+    allAgents: enabledAgents,
+    successfulAgents: settled.filter((r) => r.status === "completed").map((r) => r.agentType),
+    degradedAgents: settled
+      .filter((r) => r.status === "failed")
+      .map((r) => ({
+        agent: r.agentType,
+        error: r.error ?? "Failed during execution",
+      })),
+    tokenUsage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+    costCapReached: false,
+  });
+
   logger.info(
     {
       status: overallStatus,
@@ -171,5 +188,6 @@ export async function runReviewOrchestrator(
     allFindings,
     totalFindings: allFindings.length,
     durationMs: totalDurationMs,
+    coverage,
   };
 }

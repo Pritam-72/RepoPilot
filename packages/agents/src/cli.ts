@@ -2,6 +2,7 @@
 import { readFileSync } from "node:fs";
 import { runGeneralistReview, type ReviewFileContext } from "./generalist-agent.js";
 import { runMultiAgentReview } from "./multi-agent-orchestrator.js";
+import { formatAnalysisCoverageMarkdown } from "./reliability/index.js";
 import { MockLLMProvider, getLLMProvider } from "./llm-provider.js";
 import { logger } from "@acr/observability";
 
@@ -59,7 +60,8 @@ export async function runReviewCli(argv: string[] = process.argv.slice(2)): Prom
       repo: repo || "local-test",
       pr: prNumber || 1,
       mode: "multi-agent",
-      status: "completed",
+      status: multiResult.status,
+      coverage: multiResult.coverage,
       findingsCount: multiResult.findings.length,
       findings: multiResult.findings,
       rejectedFindings: multiResult.rejectedFindings,
@@ -74,9 +76,11 @@ export async function runReviewCli(argv: string[] = process.argv.slice(2)): Prom
       console.log("\n--- AGENTIC CODE REVIEWER: MULTI-AGENT RUN ---");
       console.log(`Repository: ${output.repo} | PR: #${output.pr}`);
       console.log(`Mode: multi-agent (${multiResult.agentRuns.length} agents)`);
+      console.log(`Status: ${output.status.toUpperCase()}`);
       console.log(`Duration: ${output.durationMs}ms | Tokens: ${output.usage.totalTokens}`);
       console.log(`Findings: ${output.findingsCount} verified | ${output.rejectedFindings.length} rejected\n`);
-      console.log(JSON.stringify(output.findings, null, 2));
+      console.log(formatAnalysisCoverageMarkdown(multiResult.coverage));
+      console.log("\n" + JSON.stringify(output.findings, null, 2));
     }
     return;
   }

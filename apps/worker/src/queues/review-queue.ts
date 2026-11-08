@@ -2,6 +2,7 @@ import { Queue, QueueEvents, type QueueOptions } from "bullmq";
 import type { ReviewJobPayload } from "@acr/review-contracts";
 
 export const REVIEW_QUEUE_NAME = "pull-request-reviews";
+export const REVIEW_DLQ_NAME = "pull-request-reviews-dlq";
 
 export interface RedisConnectionOptions {
   host?: string;
@@ -32,7 +33,19 @@ export function createReviewQueue(
         delay: 5000,
       },
       removeOnComplete: true,
-      removeOnFail: 100,
+      removeOnFail: false, // Retain failed jobs for dead-letter processing
+    },
+  });
+}
+
+export function createReviewDeadLetterQueue(
+  connection: RedisConnectionOptions = createRedisConnection()
+): Queue<ReviewJobPayload & { errorReason?: string; failedAt?: string }> {
+  return new Queue(REVIEW_DLQ_NAME, {
+    connection,
+    defaultJobOptions: {
+      removeOnComplete: false,
+      removeOnFail: false,
     },
   });
 }

@@ -1,5 +1,5 @@
 import { logger } from "@acr/observability";
-import type { FindingV2, AgentRun } from "@acr/review-contracts";
+import type { FindingV2, AgentRun, AnalysisCoverage, ReviewStatus } from "@acr/review-contracts";
 import {
   runSpecialisedAgent,
   type AgentDefinition,
@@ -9,6 +9,7 @@ import {
 } from "./base-agent.js";
 import { allSpecialisedAgents } from "./agent-definitions.js";
 import type { TokenUsage } from "./llm-provider.js";
+import { CostGuard, buildAnalysisCoverage } from "./reliability/index.js";
 
 export interface MultiAgentReviewInput {
   files: AgentReviewContext["files"];
@@ -18,6 +19,8 @@ export interface MultiAgentReviewInput {
 
 export interface MultiAgentReviewOptions extends AgentExecutionOptions {
   agentTimeoutMs?: number | undefined;
+  maxTokensPerReview?: number | undefined;
+  llmProvider?: any;
 }
 
 export interface MultiAgentReviewResult {
@@ -27,6 +30,8 @@ export interface MultiAgentReviewResult {
   totalTokens: TokenUsage;
   totalDurationMs: number;
   perAgentFindingsCount: Record<string, number>;
+  status: ReviewStatus;
+  coverage: AnalysisCoverage;
 }
 
 /**
@@ -87,9 +92,11 @@ export async function runMultiAgentReview(
   );
 
   // Run all specialised agents in parallel with per-agent timeout and error isolation
+  const provider = options.provider ?? options.llmProvider;
   const agentPromises = agents.map((agent) =>
     runSpecialisedAgent(agent, context, {
       ...options,
+      ...(provider ? { provider } : {}),
       timeoutMs: options.agentTimeoutMs ?? options.timeoutMs ?? 30000,
     })
   );
@@ -101,11 +108,7 @@ export async function runMultiAgentReview(
   const agentRuns: AgentRun[] = [];
   const perAgentFindingsCount: Record<string, number> = {};
 
-  const totalTokens: TokenUsage = {
-    promptTokens: 0,
-    completionTokens: 0,
-    totalTokens: 0,
-  };
+  const costGuard = new CostGuard({ maxTokensPerReview: options.maxTokensPerReview });
 
   settledResults.forEach((settled, idx) => {
     const agentDef = agents[idx]!;
@@ -115,10 +118,7 @@ export async function runMultiAgentReview(
       allRejectedFindings.push(...res.rejectedFindings);
       agentRuns.push(res.runRecord);
       perAgentFindingsCount[res.agent] = res.findings.length;
-
-      totalTokens.promptTokens += res.runRecord.tokens.promptTokens;
-      totalTokens.completionTokens += res.runRecord.tokens.completionTokens;
-      totalTokens.totalTokens += res.runRecord.tokens.totalTokens;
+      costGuard.recordUsage(res.runRecord.tokens);
     } else {
       // Unhandled rejection inside runner (should not happen due to runSpecialisedAgent catch,
       // but handled here defensively)
@@ -141,6 +141,27 @@ export async function runMultiAgentReview(
     }
   });
 
+  const successfulAgents: string[] = [];
+  const degradedAgents: Array<{ agent: string; error: string }> = [];
+
+  for (const run of agentRuns) {
+    if (run.status === "success") {
+      successfulAgents.push(run.agent);
+    } else {
+      degradedAgents.push({ agent: run.agent, error: run.error ?? run.status });
+    }
+  }
+
+  const coverage = buildAnalysisCoverage({
+    allFiles: input.files.map((f) => f.path),
+    analyzedFiles: input.files.map((f) => f.path),
+    allAgents: agents.map((a) => a.name),
+    successfulAgents,
+    degradedAgents,
+    tokenUsage: costGuard.getUsage(),
+    costCapReached: costGuard.isCostCapReached(),
+  });
+
   const dedupedFindings = deduplicateFindings(allRawFindings);
   const totalDurationMs = Date.now() - startTime;
 
@@ -148,9 +169,10 @@ export async function runMultiAgentReview(
     {
       totalFindings: dedupedFindings.length,
       rejectedFindings: allRejectedFindings.length,
-      totalTokens: totalTokens.totalTokens,
+      totalTokens: costGuard.getTotalTokens(),
       totalDurationMs,
       perAgentFindingsCount,
+      reviewStatus: coverage.reviewStatus,
     },
     "Multi-agent review orchestration completed"
   );
@@ -159,8 +181,10 @@ export async function runMultiAgentReview(
     findings: dedupedFindings,
     rejectedFindings: allRejectedFindings,
     agentRuns,
-    totalTokens,
+    totalTokens: costGuard.getUsage(),
     totalDurationMs,
     perAgentFindingsCount,
+    status: coverage.reviewStatus,
+    coverage,
   };
 }
