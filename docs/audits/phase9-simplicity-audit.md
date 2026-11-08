@@ -53,3 +53,4 @@
 - **API Defense:**
   - In-memory sliding-window rate limiter rejects bursting callers with HTTP 429 and `Retry-After`.
   - Secret redaction paths configured in Pino logger for tokens, API keys, and session secrets.
+

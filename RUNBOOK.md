@@ -115,3 +115,4 @@
   ```bash
   gunzip < /backups/repopilot_20261108_120000.sql.gz | docker exec -i repopilot-postgres-prod psql -U repopilot -d repopilot_prod
   ```
+

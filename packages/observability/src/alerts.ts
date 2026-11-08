@@ -159,3 +159,4 @@ export function generatePrometheusAlertRulesYaml(): string {
           description: "P95 review completion duration has exceeded target threshold."
 `;
 }
+

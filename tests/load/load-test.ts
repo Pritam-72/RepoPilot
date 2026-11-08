@@ -272,3 +272,4 @@ if (currentScript.endsWith("load-test.js") || currentScript.endsWith("load-test.
     console.log("=======================================================\n");
   });
 }
+
